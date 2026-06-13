@@ -7,7 +7,7 @@ import {
   ClipboardList,
   BarChart2,
   LogOut,
-  Leaf,
+  Settings,
 } from "lucide-react";
 
 const AdminSideBar = ({ setSidebarOpen }) => {
@@ -112,6 +112,21 @@ const AdminSideBar = ({ setSidebarOpen }) => {
               }
             >
               <BarChart2 size={20} /> Reports
+            </NavLink>
+          </li>
+          <p className="text-white/40 text-[11px] font-semibold tracking-widest uppercase px-3 mb-2">
+            Profile
+          </p>
+          <li>
+            <NavLink
+              to="/admin/settings"
+              onClick={() => setSidebarOpen && setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-150
+                ${isActive ? "bg-[#d4840a] text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`
+              }
+            >
+              <Settings size={20} /> Settings
             </NavLink>
           </li>
         </ul>

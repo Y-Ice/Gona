@@ -9,6 +9,7 @@ import AdminCrops from "./components/admin/AdminCrops";
 import AdminEmployees from "./components/admin/AdminEmployees";
 import AdminActivities from "./components/admin/AdminActivities";
 import AdminReports from "./components/admin/AdminReports";
+import AdminSettings from "./components/admin/AdminSettings";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="activities" element={<AdminActivities />} />
           <Route path="reports" element={<AdminReports />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>
