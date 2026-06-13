@@ -64,9 +64,29 @@ function RegisterForm() {
     setFormData({ ...formData, role });
   }
 
-  function handleSubmit(e) {
+
+ async function handleSubmit(e) {
     e.preventDefault();
-    console.log("Registration Data:", formData);
+        if (!formData.role) return alert('Please select a role!');
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role.toLowerCase()
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.message);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      window.location.href = '/admin';
+    } catch (err) {
+      alert('Registration failed. Make sure the server is running.');
+    }
   }
 
   return (
