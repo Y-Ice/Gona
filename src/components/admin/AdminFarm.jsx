@@ -10,32 +10,7 @@ import {
   Check,
 } from "lucide-react";
 
-const farms = [
-  {
-    name: "Highland Creek",
-    location: "Bokkos",
-    status: "Active",
-    size: "1,240 Acres",
-    crops: "4 Varieties",
-    img: "#",
-  },
-  {
-    name: "sunstone meadows",
-    location: "Mangu",
-    status: "Active",
-    size: "850 Acres",
-    crops: "2 Varieties",
-    img: "#",
-  },
-  {
-    name: "Echo peak",
-    location: "Bassa",
-    status: "Inactive",
-    size: "390 Acres",
-    crops: "0 Varieties",
-    img: "#",
-  },
-];
+const farms = [];
 
 function AddFarmModal({ onClose }) {
   return (
@@ -182,69 +157,75 @@ const AdminFarm = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {farms.map((farm, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-            >
-              <div className="relative h-44">
-                <img
-                  src={farm.img}
-                  alt={farm.name}
-                  className="w-full h-full object-cover"
-                />
-                <span
-                  className={`absolute top-3 right-3 text-xs font-sans font-medium px-3 py-1 rounded-full
-                  ${farm.status === "Active" ? "bg-[#1e3a2f] text-white" : "bg-gray-500 text-white"}`}
-                >
-                  {farm.status}
-                </span>
-              </div>
-
-              <div className="p-5">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <h3 className="text-lg font-semibold text-gray-800 truncate">
-                    {farm.name}
-                  </h3>
-                  <div className="flex items-center gap-3 text-gray-400 flex-shrink-0">
-                    <button className="hover:text-gray-600">
-                      <Pencil size={16} />
-                    </button>
-                    <button className="hover:text-gray-600">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-gray-500 font-sans mb-4">
-                  <MapPin size={14} />
-                  {farm.location}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pb-4 mb-4 border-b border-gray-100">
-                  <div>
-                    <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
-                      Farm Size
-                    </p>
-                    <p className="text-sm font-semibold text-gray-800">
-                      {farm.size}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
-                      Active Crops
-                    </p>
-                    <p className="text-sm font-semibold text-gray-800">
-                      {farm.crops}
-                    </p>
-                  </div>
-                </div>
-
-                <button className="text-sm font-sans font-medium text-[#c47a0a] hover:underline">
-                  View Farm Details →
-                </button>
-              </div>
+          {farms.length === 0 ? (
+            <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center text-gray-500">
+              No farms are registered yet. Click "Register New Farm" to add your first farm.
             </div>
-          ))}
+          ) : (
+            farms.map((farm, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+              >
+                <div className="relative h-44">
+                  <img
+                    src={farm.img}
+                    alt={farm.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <span
+                    className={`absolute top-3 right-3 text-xs font-sans font-medium px-3 py-1 rounded-full
+                    ${farm.status === "Active" ? "bg-[#1e3a2f] text-white" : "bg-gray-500 text-white"}`}
+                  >
+                    {farm.status}
+                  </span>
+                </div>
+
+                <div className="p-5">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-800 truncate">
+                      {farm.name}
+                    </h3>
+                    <div className="flex items-center gap-3 text-gray-400 flex-shrink-0">
+                      <button className="hover:text-gray-600">
+                        <Pencil size={16} />
+                      </button>
+                      <button className="hover:text-gray-600">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-500 font-sans mb-4">
+                    <MapPin size={14} />
+                    {farm.location}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pb-4 mb-4 border-b border-gray-100">
+                    <div>
+                      <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
+                        Farm Size
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {farm.size}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
+                        Active Crops
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {farm.crops}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button className="text-sm font-sans font-medium text-[#c47a0a] hover:underline">
+                    View Farm Details →
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

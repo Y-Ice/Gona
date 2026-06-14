@@ -145,10 +145,8 @@ function LoginForm() {
               type="submit"
               className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             >
-              <Link to="/admin" className="flex items-center gap-2">
-                <FaSignInAlt />
-                Sign In
-              </Link>
+              <FaSignInAlt />
+              Sign In
             </button>
           </>
         ) : (

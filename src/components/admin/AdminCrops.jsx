@@ -16,47 +16,7 @@ import {
   Check,
 } from "lucide-react";
 
-const crops = [
-  {
-    icon: "#",
-    name: "Heritage Barley",
-    batch: "Batch: HB-2024-001",
-    location: "North Orchard",
-    stage: "Growing",
-    pct: 75,
-    barColor: "bg-[#1e3a2f]",
-    harvest: "Harvest: June 12, 2024",
-    status: "HEALTHY",
-    statusColor: "bg-green-100 text-green-700",
-    yield: "850 kg",
-  },
-  {
-    icon: "#",
-    name: "Winter Rye",
-    batch: "Batch: WR-2024-042",
-    location: "Oak Ridge Estate",
-    stage: "Seeding",
-    pct: 15,
-    barColor: "bg-gray-800",
-    harvest: "Harvest: Aug 20, 2024",
-    status: "NEEDS WATER",
-    statusColor: "bg-[#fdefd0] text-[#92400e]",
-    yield: "620 kg",
-  },
-  {
-    icon: "#",
-    name: "Cassava",
-    batch: "Batch: CV-2023-098",
-    location: "West Plateau",
-    stage: "Ripening",
-    pct: 92,
-    barColor: "bg-[#c47a0a]",
-    harvest: "Harvest: May 28, 2024",
-    status: "PEST ALERT",
-    statusColor: "bg-red-100 text-red-600",
-    yield: "930 kg",
-  },
-];
+const crops = [];
 
 function AddEmployeeModal({ onClose }) {
   return (

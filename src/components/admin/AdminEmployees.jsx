@@ -13,35 +13,7 @@ import {
   Check,
 } from "lucide-react";
 
-const employees = [
-  {
-    initials: "EO",
-    name: "Emeka Obi",
-    role: "Field Worker",
-    phone: "08012345678",
-    farm: "Green Valley Farm",
-    activities: 1,
-    status: "Active",
-  },
-  {
-    initials: "AB",
-    name: "Aisha Bello",
-    role: "Supervisor",
-    phone: "08023456789",
-    farm: "Green Valley Farm",
-    activities: 1,
-    status: "Active",
-  },
-  {
-    initials: "TA",
-    name: "Tunde Adeyemi",
-    role: "Field Worker",
-    phone: "08034567890",
-    farm: "Sunrise Poultry",
-    activities: 1,
-    status: "Active",
-  },
-];
+const employees = [];
 
 function AddEmployeeModal({ onClose }) {
   return (
@@ -185,63 +157,69 @@ const AdminEmployees = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {employees.map((emp, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
-                  {emp.initials}
-                </div>
-                <div className="min-w-0">
-                  <h3 className="text-base font-semibold text-gray-800 truncate">
-                    {emp.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 font-sans italic truncate">
-                    {emp.role}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2.5 mb-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
-                  <Phone size={15} className="text-gray-400 flex-shrink-0" />
-                  {emp.phone}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
-                  <Building2
-                    size={15}
-                    className="text-gray-400 flex-shrink-0"
-                  />
-                  {emp.farm}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
-                  <ListChecks
-                    size={15}
-                    className="text-gray-400 flex-shrink-0"
-                  />
-                  {emp.activities} activities logged
-                </div>
-              </div>
-
-              <hr className="border-gray-100 mb-4" />
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-sans font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700">
-                  {emp.status}
-                </span>
-                <div className="flex items-center gap-2">
-                  <button className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
-                    <Pencil size={14} />
-                  </button>
-                  <button className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
+          {employees.length === 0 ? (
+            <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center text-gray-500">
+              No employees have been added yet. Use "Add Employee" to build your team.
             </div>
-          ))}
+          ) : (
+            employees.map((emp, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+                    {emp.initials}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-base font-semibold text-gray-800 truncate">
+                      {emp.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 font-sans italic truncate">
+                      {emp.role}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2.5 mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
+                    <Phone size={15} className="text-gray-400 flex-shrink-0" />
+                    {emp.phone}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
+                    <Building2
+                      size={15}
+                      className="text-gray-400 flex-shrink-0"
+                    />
+                    {emp.farm}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
+                    <ListChecks
+                      size={15}
+                      className="text-gray-400 flex-shrink-0"
+                    />
+                    {emp.activities} activities logged
+                  </div>
+                </div>
+
+                <hr className="border-gray-100 mb-4" />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-sans font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700">
+                    {emp.status}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                      <Pencil size={14} />
+                    </button>
+                    <button className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

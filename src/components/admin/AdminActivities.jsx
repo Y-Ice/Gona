@@ -1,34 +1,6 @@
 import { Search, Moon, Settings, Plus, Calendar, ChevronDown, SlidersHorizontal, Trash2 } from "lucide-react";
 
-const activities = [
-  {
-    date: "2024-05-17",
-    farm: "Sunrise Poultry",
-    type: "Feeding",
-    typeColor: "bg-green-100 text-green-700",
-    description: "Routine feeding and water supply for birds",
-    employee: "Tunde Adeyemi",
-    inputs: "100kg Poultry Feed",
-  },
-  {
-    date: "2024-05-18",
-    farm: "Green Valley Farm",
-    type: "Weeding",
-    typeColor: "bg-[#fdefd0] text-[#92400e]",
-    description: "Manual weeding on cassava plot",
-    employee: "Aisha Bello",
-    inputs: "—",
-  },
-  {
-    date: "2024-05-20",
-    farm: "Green Valley Farm",
-    type: "Fertilizing",
-    typeColor: "bg-[#f0e8da] text-[#7a6a50]",
-    description: "Applied NPK fertilizer to maize field",
-    employee: "Emeka Obi",
-    inputs: "50kg NPK Fertilizer",
-  },
-];
+const activities = [];
 
 const AdminActivities = () => {
   return (
@@ -97,56 +69,62 @@ const AdminActivities = () => {
             </span>
           </div>
 
-          {activities.map((act, i) => (
-            <div
-              key={i}
-              className={`grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.6fr] gap-2 lg:gap-4 px-6 py-4 lg:items-center
-                ${i !== activities.length - 1 ? "border-b border-gray-100" : ""}`}
-            >
-              <span className="text-sm font-sans text-gray-700">
-                <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
-                  Date:
-                </span>
-                {act.date}
-              </span>
-              <span className="text-sm font-sans text-gray-700">
-                <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
-                  Farm:
-                </span>
-                {act.farm}
-              </span>
-              <div>
-                <span
-                  className={`text-xs font-sans font-semibold px-3 py-1 rounded-full ${act.typeColor}`}
-                >
-                  {act.type}
-                </span>
-              </div>
-              <span className="text-sm font-sans text-gray-700">
-                <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2 block">
-                  Description:
-                </span>
-                {act.description}
-              </span>
-              <span className="text-sm font-sans text-gray-700">
-                <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
-                  Employee:
-                </span>
-                {act.employee}
-              </span>
-              <span className="text-sm font-sans text-gray-700">
-                <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
-                  Inputs:
-                </span>
-                {act.inputs}
-              </span>
-              <div className="lg:text-right">
-                <button className="text-red-400 hover:text-red-600">
-                  <Trash2 size={16} />
-                </button>
-              </div>
+          {activities.length === 0 ? (
+            <div className="px-6 py-16 text-center text-gray-500">
+              No activity logs yet. Use "Log Activity" to add your first record.
             </div>
-          ))}
+          ) : (
+            activities.map((act, i) => (
+              <div
+                key={i}
+                className={`grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.6fr] gap-2 lg:gap-4 px-6 py-4 lg:items-center
+                  ${i !== activities.length - 1 ? "border-b border-gray-100" : ""}`}
+              >
+                <span className="text-sm font-sans text-gray-700">
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    Date:
+                  </span>
+                  {act.date}
+                </span>
+                <span className="text-sm font-sans text-gray-700">
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    Farm:
+                  </span>
+                  {act.farm}
+                </span>
+                <div>
+                  <span
+                    className={`text-xs font-sans font-semibold px-3 py-1 rounded-full ${act.typeColor}`}
+                  >
+                    {act.type}
+                  </span>
+                </div>
+                <span className="text-sm font-sans text-gray-700">
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2 block">
+                    Description:
+                  </span>
+                  {act.description}
+                </span>
+                <span className="text-sm font-sans text-gray-700">
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    Employee:
+                  </span>
+                  {act.employee}
+                </span>
+                <span className="text-sm font-sans text-gray-700">
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    Inputs:
+                  </span>
+                  {act.inputs}
+                </span>
+                <div className="lg:text-right">
+                  <button className="text-red-400 hover:text-red-600">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
