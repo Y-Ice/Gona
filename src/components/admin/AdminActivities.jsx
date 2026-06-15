@@ -1,4 +1,13 @@
-import { Search, Moon, Settings, Plus, Calendar, ChevronDown, SlidersHorizontal, Trash2 } from "lucide-react";
+import {
+  Search,
+  Settings,
+  Plus,
+  Calendar,
+  ChevronDown,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 const activities = [];
 
@@ -21,14 +30,13 @@ const AdminActivities = () => {
               className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
             />
           </div>
-          <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
-            <Moon size={18} />
-          </button>
-          <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 relative flex-shrink-0">
-            <Settings size={18} />
-          </button>
+          <Link to="/admin/settings">
+            <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 relative flex-shrink-0">
+              <Settings size={18} />
+            </button>
+          </Link>
           <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
-            JT
+            
           </div>
         </div>
       </div>

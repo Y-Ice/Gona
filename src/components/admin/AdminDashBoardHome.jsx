@@ -11,7 +11,6 @@ import {
   MoreVertical,
   Plus,
   Settings,
-  Moon,
   Search
 
 } from "lucide-react";
@@ -72,14 +71,14 @@ const AdminDashBoardHome = () => {
               className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
             />
           </div>
-          <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
-            <Moon size={18} />
-          </button>
-          <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 relative flex-shrink-0">
-            <Settings size={18} />
-          </button>
+         
+          <Link to="/admin/settings">
+            <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 relative flex-shrink-0">
+              <Settings size={18} />
+            </button>
+          </Link>
           <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
-            JT
+            
           </div>
         </div>
       </div>
@@ -128,7 +127,8 @@ const AdminDashBoardHome = () => {
             <div className="flex flex-col gap-5">
               {activities.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-gray-300 bg-[#f9f8f5] p-8 text-center text-gray-500">
-                  No recent activities yet. Once you log actions, they'll appear here.
+                  No recent activities yet. Once you log actions, they'll appear
+                  here.
                 </div>
               ) : (
                 activities.map((act, i) => (
@@ -189,7 +189,8 @@ const AdminDashBoardHome = () => {
           </div>
           {farms.length === 0 ? (
             <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-[#f9f8f5] p-8 text-center text-gray-500">
-              No farms are registered yet. Add your first farm to see it listed here.
+              No farms are registered yet. Add your first farm to see it listed
+              here.
             </div>
           ) : (
             farms.map((farm, i) => (

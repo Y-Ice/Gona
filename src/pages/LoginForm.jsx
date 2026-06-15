@@ -46,28 +46,30 @@ function LoginForm() {
   const [activeTab, setActiveTab] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState(""); 
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
  async function handleSubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (!res.ok) return alert(data.message);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      window.location.href = '/admin';
-    } catch (err) {
-      alert('Login failed. Make sure the server is running.');
-    }
+  e.preventDefault();
+  setError(""); // clear previous error
+  try {
+    const res = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    const data = await res.json();
+    if (!res.ok) return setError(data.message); 
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = '/admin';
+  } catch (err) {
+    setError('Login failed. Make sure the server is running.'); 
   }
+}
 
   return (
     <div className="min-h-screen bg-[#0d4a17] flex justify-center items-center px-4">
@@ -115,6 +117,13 @@ function LoginForm() {
 
         {activeTab ? (
           <>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-100 text-red-700 text-center px-4 py-3 rounded-lg mb-4">
+                {error}
+              </div>
+            )}
+
             {/* Email */}
             <FloatingInput
               type="email"

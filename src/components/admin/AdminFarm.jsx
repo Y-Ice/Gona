@@ -9,6 +9,7 @@ import {
   X,
   Check,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const farms = [];
 
@@ -128,11 +129,13 @@ const AdminFarm = () => {
           />
         </div>
         <div className="flex items-center gap-3 self-end sm:self-auto sm:ml-4">
-          <button className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
-            <Settings size={18} />
-          </button>
+          <Link to="/admin/settings">
+            <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 relative flex-shrink-0">
+              <Settings size={18} />
+            </button>
+          </Link>
           <div className="w-10 h-10 rounded-full bg-[#f5a623] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
-            JS
+          
           </div>
         </div>
       </div>
@@ -159,7 +162,8 @@ const AdminFarm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {farms.length === 0 ? (
             <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center text-gray-500">
-              No farms are registered yet. Click "Register New Farm" to add your first farm.
+              No farms are registered yet. Click "Register New Farm" to add your
+              first farm.
             </div>
           ) : (
             farms.map((farm, i) => (
