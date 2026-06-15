@@ -46,28 +46,20 @@ function FloatingInput({ type, name, label, value, onChange, children }) {
 }
 
 function RegisterForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    role: "",
   });
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleRoleSelect(role) {
-    setSelectedRole(role);
-    setFormData({ ...formData, role });
-  }
-
 
  async function handleSubmit(e) {
     e.preventDefault();
-        if (!formData.role) return alert('Please select a role!');
     try {
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -75,8 +67,7 @@ function RegisterForm() {
         body: JSON.stringify({
           name: formData.fullName,
           email: formData.email,
-          password: formData.password,
-          role: formData.role.toLowerCase()
+          password: formData.password
         })
       });
       const data = await res.json();
@@ -127,23 +118,10 @@ function RegisterForm() {
       </div>
 
       {/* Role Selection */}
-      <p className="text-[11px] text-[#331107] mb-3 font-medium tracking-wide">
+      {/* <p className="text-[11px] text-[#331107] mb-3 font-medium tracking-wide">
         SELECT ROLE
       </p>
       <div className="flex gap-4 mb-5">
-        <button
-          type="button"
-          onClick={() => handleRoleSelect("Admin")}
-          className={`flex-1 h-12 flex flex-col items-center justify-center gap-1 rounded-lg border text-sm transition-all duration-200 cursor-pointer
-            ${
-              selectedRole === "Admin"
-                ? "border-[#171305] bg-[#171305] text-white"
-                : "border-gray-300 bg-white text-gray-700 hover:border-[#171305]"
-            }`}
-        >
-          <FaShieldAlt className="text-base" />
-          Admin
-        </button>
         <button
           type="button"
           onClick={() => handleRoleSelect("Farmer")}
@@ -157,7 +135,7 @@ function RegisterForm() {
           <FaTractor className="text-base" />
           Farmer
         </button>
-      </div>
+      </div> */}
 
       <button
         type="submit"
