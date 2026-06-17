@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LanguageProvider } from "./LanguageContext.jsx";
 import LandingPage from "./pages/LandingPage";
 import RegisterForm from "./pages/RegisterForm";
 import LoginForm from "./pages/LoginForm";
@@ -13,22 +14,24 @@ import AdminSettings from "./components/admin/AdminSettings";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/admin" element={<AdminDashboard />}>
-          <Route index element={<AdminDashBoardHome />} />
-          <Route path="farms" element={<AdminFarm />} />
-          <Route path="crops" element={<AdminCrops />} />
-          <Route path="employees" element={<AdminEmployees />} />
-          <Route path="activities" element={<AdminActivities />} />
-          <Route path="reports" element={<AdminReports />} />
-          <Route path="settings" element={<AdminSettings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/admin" element={<AdminDashboard />}>
+            <Route index element={<AdminDashBoardHome />} />
+            <Route path="farms" element={<AdminFarm />} />
+            <Route path="crops" element={<AdminCrops />} />
+            <Route path="employees" element={<AdminEmployees />} />
+            <Route path="activities" element={<AdminActivities />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </LanguageProvider>
   );
 };
 
