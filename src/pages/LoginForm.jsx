@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaSignInAlt, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
 import RegisterForm from "./RegisterForm";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -45,6 +45,7 @@ function FloatingInput({ type, name, label, value, onChange, children }) {
 }
 
 function LoginForm() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -67,7 +68,7 @@ function LoginForm() {
       if (!res.ok) return setError(data.message);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      window.location.href = "/admin";
+      navigate("/admin");
     } catch (err) {
       setError("Login failed. Make sure the server is running.");
     }
