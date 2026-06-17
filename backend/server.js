@@ -9,7 +9,7 @@ const authRoutes = require('./routes/auth');
 const app = express();
 
 app.use(cors({
-  origin: ['https://gona-olive.vercel.app', 'http://localhost:5173'],
+  origin: ['https://gona-olive.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
