@@ -7,6 +7,8 @@ import {
   FaEyeSlash,
 } from "react-icons/fa";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function FloatingInput({ type, name, label, value, onChange, children }) {
   return (
     <div className="relative mb-5">
@@ -46,7 +48,7 @@ function FloatingInput({ type, name, label, value, onChange, children }) {
 }
 
 function RegisterForm() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -57,26 +59,25 @@ function RegisterForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-
- async function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.fullName,
           email: formData.email,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
       const data = await res.json();
       if (!res.ok) return alert(data.message);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      window.location.href = '/admin';
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      window.location.href = "/admin";
     } catch (err) {
-      alert('Registration failed. Make sure the server is running.');
+      alert("Registration failed. Make sure the server is running.");
     }
   }
 
@@ -116,26 +117,6 @@ function RegisterForm() {
           {showPassword ? <FaEye /> : <FaEyeSlash />}
         </span>
       </div>
-
-      {/* Role Selection */}
-      {/* <p className="text-[11px] text-[#331107] mb-3 font-medium tracking-wide">
-        SELECT ROLE
-      </p>
-      <div className="flex gap-4 mb-5">
-        <button
-          type="button"
-          onClick={() => handleRoleSelect("Farmer")}
-          className={`flex-1 h-12 flex flex-col items-center justify-center gap-1 rounded-lg border text-sm transition-all duration-200 cursor-pointer
-            ${
-              selectedRole === "Farmer"
-                ? "border-[#99672d] bg-[#99672d] text-white"
-                : "border-[#99672d] bg-transparent text-[#99672d] hover:bg-[#99672d]/10"
-            }`}
-        >
-          <FaTractor className="text-base" />
-          Farmer
-        </button>
-      </div> */}
 
       <button
         type="submit"

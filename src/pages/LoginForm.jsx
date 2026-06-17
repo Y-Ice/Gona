@@ -3,6 +3,8 @@ import { FaSignInAlt, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
 import RegisterForm from "./RegisterForm";
 import { Link } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function FloatingInput({ type, name, label, value, onChange, children }) {
   return (
     <div className="relative mb-5">
@@ -46,30 +48,30 @@ function LoginForm() {
   const [activeTab, setActiveTab] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
- async function handleSubmit(e) {
-  e.preventDefault();
-  setError(""); // clear previous error
-  try {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    });
-    const data = await res.json();
-    if (!res.ok) return setError(data.message); 
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    window.location.href = '/admin';
-  } catch (err) {
-    setError('Login failed. Make sure the server is running.'); 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) return setError(data.message);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      window.location.href = "/admin";
+    } catch (err) {
+      setError("Login failed. Make sure the server is running.");
+    }
   }
-}
 
   return (
     <div className="min-h-screen bg-[#0d4a17] flex justify-center items-center px-4">
