@@ -9,7 +9,7 @@ import {
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from "recharts";
 
-const API = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
 
 const COLORS = ["#1e3a2f", "#c47a0a", "#3a8a5a", "#7a6a50", "#8a8a8a", "#f5a623"];
