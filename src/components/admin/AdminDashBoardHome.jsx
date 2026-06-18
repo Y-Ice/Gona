@@ -67,19 +67,16 @@ const AdminDashBoardHome = () => {
             />
             <input
               type="text"
-              placeholder="Search employees..."
+              placeholder="Search Employees..."
               className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
             />
           </div>
-         
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 relative flex-shrink-0">
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
-            
-          </div>
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
         </div>
       </div>
 
@@ -167,24 +164,25 @@ const AdminDashBoardHome = () => {
               </Link>
             </div>
           </div>
-          <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_0.5fr] gap-4 px-6 py-3 bg-[#f7f4ee] border-y border-gray-100">
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 justify-between gap-2 px-6 py-3 bg-[#f7f4ee] border-y border-gray-100">
+            <span className="text-xs font-sans font-semibold text-gray-400">
               Farm Name
             </span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+
+            <span className="text-xs font-sans font-semibold text-gray-400">
               Location
             </span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+
+            <span className="text-xs font-sans font-semibold text-gray-400">
               Specialization
             </span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+
+            <span className="text-xs font-sans font-semibold text-gray-400">
               Size (Acres)
             </span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+
+            <span className="text-xs font-sans font-semibold text-gray-400">
               Status
-            </span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase text-right">
-              Actions
             </span>
           </div>
           {farms.length === 0 ? (
