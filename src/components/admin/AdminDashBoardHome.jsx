@@ -85,7 +85,7 @@ const AdminDashBoardHome = () => {
 
       <div className="mb-6 border-b border-gray-500 pb-4"></div>
       <div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((stat) => (
             <div
               key={stat.label}
