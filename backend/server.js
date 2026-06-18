@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const session = require('express-session'); 
+const passport = require('passport');
+require('./config/passport');
 require('dotenv').config();
 
 const authRoutes     = require('./routes/auth');
@@ -16,6 +19,20 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// ADD THIS BLOCK
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'gona-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 10 * 60 * 1000, // 10 minutes
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true
+  }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (req, res) => {
   res.json({ message: 'Gona API is running' });

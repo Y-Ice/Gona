@@ -11,6 +11,7 @@ import AdminEmployees from "./components/admin/AdminEmployees";
 import AdminActivities from "./components/admin/AdminActivities";
 import AdminReports from "./components/admin/AdminReports";
 import AdminSettings from "./components/admin/AdminSettings";
+import AuthCallback from "./pages/AuthCallback";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminDashBoardHome />} />
             <Route path="farms" element={<AdminFarm />} />

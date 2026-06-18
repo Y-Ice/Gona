@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaSignInAlt, FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import RegisterForm from "./RegisterForm";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -15,32 +16,37 @@ function FloatingInput({ type, name, label, value, onChange, children }) {
         required
         value={value}
         onChange={onChange}
-        className="
-          peer w-full px-3 pt-5 pb-2
-          border border-gray-300 rounded-lg
-          bg-white text-sm outline-none
-          focus:border-[#0d4a17] focus:ring-2 focus:ring-[#0d4a17]/20
-          transition-all duration-200
-        "
+        className="peer w-full px-3 pt-5 pb-2 border border-gray-300 rounded-lg bg-white text-sm outline-none focus:border-[#0d4a17] focus:ring-2 focus:ring-[#0d4a17]/20 transition-all duration-200"
       />
-      <label
-        className="
-          absolute left-3 top-2.5
-          text-[10px] text-gray-400 pointer-events-none
-          transition-all duration-200
-          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
-          peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-[#0d4a17] peer-focus:font-semibold
-          peer-[&:not(:placeholder-shown)]:top-1.5
-          peer-[&:not(:placeholder-shown)]:text-[10px]
-          peer-[&:not(:placeholder-shown)]:text-[#0d4a17]
-          peer-[&:not(:placeholder-shown)]:font-semibold
-          bg-white px-1 rounded
-        "
-      >
+      <label className="absolute left-3 top-2.5 text-[10px] text-gray-400 pointer-events-none transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-[#0d4a17] peer-focus:font-semibold peer-[&:not(:placeholder-shown)]:top-1.5 peer-[&:not(:placeholder-shown)]:text-[10px] peer-[&:not(:placeholder-shown)]:text-[#0d4a17] peer-[&:not(:placeholder-shown)]:font-semibold bg-white px-1 rounded">
         {label}
       </label>
       {children}
     </div>
+  );
+}
+
+function GoogleButton({ label }) {
+  function handleGoogleLogin() {
+    window.location.href = `${API_URL}/api/auth/google`;
+  }
+
+  return (
+    <>
+      <div className="flex items-center gap-3 my-4">
+        <hr className="flex-1 border-gray-300" />
+        <span className="text-xs text-gray-400">or</span>
+        <hr className="flex-1 border-gray-300" />
+      </div>
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        className="w-full py-3 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2 shadow-sm"
+      >
+        <FcGoogle className="text-lg" />
+        {label} with Google
+      </button>
+    </>
   );
 }
 
@@ -50,6 +56,9 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [otpStep, setOtpStep] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -66,77 +75,103 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) return setError(data.message);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/admin");
+      setOtpStep(true);
     } catch (err) {
       setError("Login failed. Make sure the server is running.");
     }
   }
 
+  async function handleOtpSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setOtpLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, otp }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpLoading(false);
+        return setError(data.message);
+      }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/admin");
+    } catch (err) {
+      setOtpLoading(false);
+      setError("OTP verification failed. Try again.");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#0d4a17] flex justify-center items-center px-4">
-      <form
-        className="w-full max-w-sm bg-[#f3efe4] p-8 rounded-2xl shadow-xl"
-        onSubmit={handleSubmit}
-      >
-        {/* Logo + Title */}
+      <div className="w-full max-w-sm bg-[#f3efe4] p-8 rounded-2xl shadow-xl">
+
         <div className="flex flex-col items-center mb-6">
-          <img
-            src="/images/logo3.png"
-            alt="Gona logo"
-            className="w-25 h-25 mb-2"
-          />
-          <p className="text-xs text-gray-500 text-center">
-            Smart Farm Management Platform
-          </p>
+          <img src="/images/logo3.png" alt="Gona logo" className="w-25 h-25 mb-2" />
+          <p className="text-xs text-gray-500 text-center">Smart Farm Management Platform</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex bg-[#e6e0d3] rounded-xl overflow-hidden mb-6">
-          <button
-            type="button"
-            onClick={() => setActiveTab(true)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors duration-200 rounded-xl ${
-              activeTab
-                ? "bg-[#171305] text-white"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab(false)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors duration-200 rounded-xl ${
-              !activeTab
-                ? "bg-[#171305] text-white"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Sign Up
-          </button>
-        </div>
+        {!otpStep && (
+          <div className="flex bg-[#e6e0d3] rounded-xl overflow-hidden mb-6">
+            <button
+              type="button"
+              onClick={() => setActiveTab(true)}
+              className={`flex-1 py-3 text-sm font-medium transition-colors duration-200 rounded-xl ${activeTab ? "bg-[#171305] text-white" : "text-gray-500 hover:text-gray-700"}`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab(false)}
+              className={`flex-1 py-3 text-sm font-medium transition-colors duration-200 rounded-xl ${!activeTab ? "bg-[#171305] text-white" : "text-gray-500 hover:text-gray-700"}`}
+            >
+              Sign Up
+            </button>
+          </div>
+        )}
 
-        {activeTab ? (
-          <>
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-100 text-red-700 text-center px-4 py-3 rounded-lg mb-4">
-                {error}
-              </div>
-            )}
+        {error && activeTab && (
+          <div className="bg-red-100 text-red-700 text-center px-4 py-3 rounded-lg mb-4 text-sm">
+            {error}
+          </div>
+        )}
 
-            {/* Email */}
+        {otpStep ? (
+          <form onSubmit={handleOtpSubmit}>
+            <div className="text-center mb-6">
+              <p className="text-sm font-semibold text-[#0d4a17]">Check your email</p>
+              <p className="text-xs text-gray-500 mt-1">
+                We sent a 6-digit code to <strong>{formData.email}</strong>
+              </p>
+            </div>
             <FloatingInput
-              type="email"
-              name="email"
-              label="EMAIL"
-              value={formData.email}
-              onChange={handleChange}
+              type="text"
+              name="otp"
+              label="ENTER OTP CODE"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
             />
+            <button
+              type="submit"
+              disabled={otpLoading}
+              className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            >
+              {otpLoading ? "Verifying..." : "Verify & Sign In"}
+            </button>
+            <p
+              onClick={() => { setOtpStep(false); setOtp(""); setError(""); }}
+              className="text-center mt-4 text-xs text-[#8b6f3d] cursor-pointer"
+            >
+              ← Back to login
+            </p>
+          </form>
 
-            {/* Password */}
+        ) : activeTab ? (
+          <form onSubmit={handleSubmit}>
+            <FloatingInput type="email" name="email" label="EMAIL" value={formData.email} onChange={handleChange} />
             <div className="relative mb-4">
               <FloatingInput
                 type={showPassword ? "text" : "password"}
@@ -152,25 +187,29 @@ function LoginForm() {
                 {showPassword ? <FaEye /> : <FaEyeSlash />}
               </span>
             </div>
-
             <button
               type="submit"
               className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             >
-              <FaSignInAlt />
-              Sign In
+              <FaSignInAlt /> Sign In
             </button>
-          </>
+            {/* ✅ Google Sign In button */}
+            <GoogleButton label="Sign In" />
+          </form>
+
         ) : (
+          // RegisterForm has its own Google button inside
           <RegisterForm />
         )}
 
-        <p className="text-center mt-4 text-xs text-[#8b6f3d] cursor-pointer flex items-center justify-center gap-2">
-          <Link to="/" className="flex items-center gap-2">
-            <FaArrowLeft /> Back to Gona Home
-          </Link>
-        </p>
-      </form>
+        {!otpStep && (
+          <p className="text-center mt-4 text-xs text-[#8b6f3d] cursor-pointer flex items-center justify-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
+              <FaArrowLeft /> Back to Gona Home
+            </Link>
+          </p>
+        )}
+      </div>
     </div>
   );
 }
