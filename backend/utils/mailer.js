@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
@@ -6,6 +7,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+  },
+  lookup: (hostname, options, callback) => {
+    dns.lookup(hostname, { ...options, family: 4 }, callback);
   },
 });
 

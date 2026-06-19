@@ -25,11 +25,21 @@ router.post('/register', async (req, res) => {
     const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
     otpStore[email] = { otp, expires };
 
-    // Send OTP email
-    await sendOTP(email, otp);
+    // Send OTP email (don't let mailer failures break registration)
+    let mailSent = true;
+    try {
+      await sendOTP(email, otp);
+    } catch (mailErr) {
+      console.error('Failed to send OTP email:', mailErr);
+      mailSent = false;
+    }
 
     // No token yet — wait for OTP verification
-    res.status(201).json({ message: 'Account created. OTP sent to your email.' });
+    if (mailSent) {
+      res.status(201).json({ message: 'Account created. OTP sent to your email.' });
+    } else {
+      res.status(201).json({ message: 'Account created but failed to send OTP email. Check server logs.' });
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -69,10 +79,20 @@ router.post('/login', async (req, res) => {
     const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
     otpStore[email] = { otp, expires };
 
-    // Send OTP email — only once
-    await sendOTP(email, otp);
+    // Send OTP email — only once. Don't crash on failures.
+    let mailSent = true;
+    try {
+      await sendOTP(email, otp);
+    } catch (mailErr) {
+      console.error('Failed to send OTP email:', mailErr);
+      mailSent = false;
+    }
 
-    res.json({ message: 'OTP sent to your email. Please verify to continue.' });
+    if (mailSent) {
+      res.json({ message: 'OTP sent to your email. Please verify to continue.' });
+    } else {
+      res.status(200).json({ message: 'OTP generation succeeded but failed to send email. Check server logs.' });
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
