@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
-const { sendOTP, isTransporterReady } = require('../utils/mailer');
+const { sendOTP } = require('../utils/mailer');
 const passport = require('passport');
 
 const otpStore = {};
@@ -20,19 +20,17 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: hashedPassword });
 
-    if (!isTransporterReady()) {
-      return res.status(500).json({ message: 'Email service is unavailable. Check EMAIL_USER and EMAIL_PASS on the backend.' });
-    }
-
     // Generate OTP and store it
     const otp = crypto.randomInt(100000, 999999).toString();
     const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
     otpStore[email] = { otp, expires };
 
-    // Send OTP email before responding so the user does not proceed without code.
-    await sendOTP(email, otp);
+    // Send OTP email in the background, do not block the response.
+    sendOTP(email, otp).catch((mailErr) => {
+      console.error('Failed to send OTP email:', mailErr);
+    });
 
-    res.status(201).json({ message: 'Account created. OTP sent to your email.' });
+    res.status(201).json({ message: 'Account created. OTP is on the way. Check your email (including spam).' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -67,19 +65,17 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    if (!isTransporterReady()) {
-      return res.status(500).json({ message: 'Email service is unavailable. Check EMAIL_USER and EMAIL_PASS on the backend.' });
-    }
-
     // Generate OTP and store it
     const otp = crypto.randomInt(100000, 999999).toString();
     const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
     otpStore[email] = { otp, expires };
 
-    // Send OTP email before responding so the user does not proceed without code.
-    await sendOTP(email, otp);
+    // Send OTP email in the background, do not block the response.
+    sendOTP(email, otp).catch((mailErr) => {
+      console.error('Failed to send OTP email:', mailErr);
+    });
 
-    res.json({ message: 'OTP sent to your email. Please verify to continue.' });
+    res.json({ message: 'OTP is on the way. Check your email (including spam).' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
