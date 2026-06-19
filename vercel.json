@@ -1,14 +1,17 @@
 {
+  "projectSettings": {
+    "framework": "services"
+  },
   "experimentalServices": {
     "frontend": {
+      "entrypoint": ".",
       "routePrefix": "/",
       "framework": "vite"
     },
     "backend": {
-      "root": "backend",
-      "routePrefix": "/_/backend",
-      "framework": "node",
-      "entrypoint": "server.js"
+      "entrypoint": "backend",
+      "routePrefix": "/api",
+      "framework": "node"
     }
   }
 }
