@@ -4,9 +4,16 @@ import {
   MoreVertical, Plus, Settings, Search,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
+import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+
+function T({ text }) {
+  const translated = useTranslatedText(text);
+  return <>{translated}</>;
+}
 
 const AdminDashBoardHome = () => {
   const [farms, setFarms]           = useState([]);
@@ -19,10 +26,10 @@ const AdminDashBoardHome = () => {
     const fetchAll = async () => {
       try {
         const [farmRes, cropRes, empRes, actRes] = await Promise.all([
-          fetch(`${API}/farms`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/crops`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/employees`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/activities`, { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/farms`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/crops`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/employees`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/activities`, { headers: { Authorization: `Bearer ${getToken()}` } }),
         ]);
         const [farmData, cropData, empData, actData] = await Promise.all([
           farmRes.json(), cropRes.json(), empRes.json(), actRes.json(),
@@ -99,7 +106,9 @@ const AdminDashBoardHome = () => {
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h2 className="text-3xl font-bold text-gray-700">Dashboard Overview</h2>
+        <h2 className="text-3xl font-bold text-gray-700">
+          <T text="Dashboard Overview" />
+        </h2>
         <div className="flex items-center gap-3">
           <div className="relative flex-1 sm:flex-none sm:w-64">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -118,6 +127,7 @@ const AdminDashBoardHome = () => {
       <div className="mb-6 border-b border-gray-500 pb-4"></div>
 
       <div className="px-4 sm:px-6">
+
         {/* Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((stat) => (
@@ -131,7 +141,9 @@ const AdminDashBoardHome = () => {
                   {stat.change}
                 </span>
               </div>
-              <p className="text-sm text-gray-500 font-sans mb-1">{stat.label}</p>
+              <p className="text-sm text-gray-500 font-sans mb-1">
+                <T text={stat.label} />
+              </p>
               <p className="text-2xl font-semibold text-gray-800">{stat.value}</p>
             </div>
           ))}
@@ -140,27 +152,35 @@ const AdminDashBoardHome = () => {
         {/* Recent Activities */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-4">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-semibold text-gray-800">Recent Activities</h3>
+            <h3 className="text-lg font-semibold text-gray-800">
+              <T text="Recent Activities" />
+            </h3>
             <Link to="/admin/activities">
-              <button className="text-sm text-[#c47a0a] font-sans hover:underline">View all →</button>
+              <button className="text-sm text-[#c47a0a] font-sans hover:underline">
+                <T text="View all" /> →
+              </button>
             </Link>
           </div>
 
           {loading ? (
-            <p className="text-sm text-gray-400 font-sans text-center py-6">Loading activities...</p>
+            <p className="text-sm text-gray-400 font-sans text-center py-6">
+              <T text="Loading activities..." />
+            </p>
           ) : recentActivities.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-[#f9f8f5] p-8 text-center text-gray-500">
-              No recent activities yet. Once you log actions, they'll appear here.
+              <T text="No recent activities yet. Once you log actions, they'll appear here." />
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               {recentActivities.map((act) => (
                 <div key={act._id} className="flex items-start gap-4">
                   <span className={`text-xs font-sans font-semibold px-3 py-1.5 rounded-full flex-shrink-0 ${activityTypeColor(act.type)}`}>
-                    {act.type}
+                    <T text={act.type} />
                   </span>
-                  <div>
-                    <p className="text-sm text-gray-800 font-sans">{act.description || "No description"}</p>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-800 font-sans">
+                      <T text={act.description || "No description"} />
+                    </p>
                     <p className="text-[11px] text-gray-400 font-sans mt-0.5 tracking-wide">
                       {getFarmName(act.farmId)} · {getEmpName(act.employeeId)} · {act.date ? new Date(act.date).toLocaleDateString() : ""}
                     </p>
@@ -174,28 +194,32 @@ const AdminDashBoardHome = () => {
         {/* Farm Overview */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
           <div className="flex items-center justify-between px-6 py-5">
-            <h3 className="text-lg font-semibold text-gray-800">Farm Overview</h3>
+            <h3 className="text-lg font-semibold text-gray-800">
+              <T text="Farm Overview" />
+            </h3>
             <Link to="/admin/farms">
               <button className="flex items-center text-sm font-sans font-medium px-3 py-2 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c]">
                 <Plus size={18} className="mr-2" />
-                Add Farm
+                <T text="Add Farm" />
               </button>
             </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-2 px-6 py-3 bg-[#f7f4ee] border-y border-gray-100">
-            <span className="text-xs font-sans font-semibold text-gray-400">Farm Name</span>
-            <span className="text-xs font-sans font-semibold text-gray-400">Location</span>
-            <span className="text-xs font-sans font-semibold text-gray-400">Specialization</span>
-            <span className="text-xs font-sans font-semibold text-gray-400">Size</span>
-            <span className="text-xs font-sans font-semibold text-gray-400">Status</span>
+            {["Farm Name", "Location", "Specialization", "Size", "Status"].map((col) => (
+              <span key={col} className="text-xs font-sans font-semibold text-gray-400">
+                <T text={col} />
+              </span>
+            ))}
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-gray-400 font-sans text-sm">Loading farms...</div>
+            <div className="p-8 text-center text-gray-400 font-sans text-sm">
+              <T text="Loading farms..." />
+            </div>
           ) : farms.length === 0 ? (
             <div className="p-8 text-center text-gray-500 font-sans text-sm border border-dashed border-gray-300 rounded-2xl m-4">
-              No farms registered yet. Add your first farm to see it listed here.
+              <T text="No farms registered yet. Add your first farm to see it listed here." />
             </div>
           ) : (
             farms.map((farm, i) => (
@@ -211,14 +235,14 @@ const AdminDashBoardHome = () => {
                 <span className="text-sm text-gray-600 font-sans">{farm.location || "—"}</span>
                 <div>
                   <span className="text-xs font-sans font-medium px-2.5 py-1 rounded-md bg-[#f0ece0] text-gray-600 uppercase tracking-wide">
-                    {farm.specialization || "—"}
+                    <T text={farm.specialization || "—"} />
                   </span>
                 </div>
                 <span className="text-sm text-gray-600 font-sans">{farm.size} {farm.unit}</span>
                 <div className="flex items-center justify-between">
                   <span className={`text-xs font-sans font-semibold px-2.5 py-1 rounded-md uppercase tracking-wide
                     ${farm.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-500"}`}>
-                    {farm.status}
+                    <T text={farm.status} />
                   </span>
                   <button className="text-gray-400 hover:text-gray-600">
                     <MoreVertical size={18} />

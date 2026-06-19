@@ -36,7 +36,7 @@ router.post('/register', async (req, res) => {
 });
 
 router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' })
 );
 
 // Google callback — issue JWT and redirect to frontend

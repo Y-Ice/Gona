@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider } from "./LanguageContext.jsx";
+import { LanguageProvider } from "./context/LanguageContext.jsx";
 import LandingPage from "./pages/LandingPage";
 import RegisterForm from "./pages/RegisterForm";
 import LoginForm from "./pages/LoginForm";

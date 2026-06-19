@@ -3,9 +3,15 @@ import {
   Search, Settings, Plus, MapPin, X, Check, Pencil, Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+
+function T({ text }) {
+  const translated = useTranslatedText(text);
+  return <>{translated}</>;
+}
 
 function AddCropModal({ onClose, onSave, farms }) {
   const [form, setForm] = useState({
@@ -23,7 +29,7 @@ function AddCropModal({ onClose, onSave, farms }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API}/crops`, {
+      const res = await fetch(`${API_URL}/api/crops`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +52,7 @@ function AddCropModal({ onClose, onSave, farms }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800">Add New Crop</h2>
+          <h2 className="text-xl font-semibold text-gray-800"><T text="Add New Crop" /></h2>
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
             <X size={18} />
           </button>
@@ -54,13 +60,17 @@ function AddCropModal({ onClose, onSave, farms }) {
 
         <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Crop Name</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Crop Name" />
+            </label>
             <input name="name" value={form.name} onChange={handleChange} type="text" placeholder="e.g. Maize"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Farm</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Farm" />
+            </label>
             <select name="farmId" value={form.farmId} onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
               {farms.length === 0 ? (
@@ -74,25 +84,33 @@ function AddCropModal({ onClose, onSave, farms }) {
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Plant Date</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Plant Date" />
+            </label>
             <input name="plantDate" value={form.plantDate} onChange={handleChange} type="date"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Harvest Date</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Harvest Date" />
+            </label>
             <input name="harvestDate" value={form.harvestDate} onChange={handleChange} type="date"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Expected Yield (kg)</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Expected Yield (kg)" />
+            </label>
             <input name="expectedYield" value={form.expectedYield} onChange={handleChange} type="number" placeholder="500"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Status</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Status" />
+            </label>
             <select name="status" value={form.status} onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
               <option>Growing</option>
@@ -107,12 +125,12 @@ function AddCropModal({ onClose, onSave, farms }) {
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
           <button onClick={onClose}
             className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
-            Cancel
+            <T text="Cancel" />
           </button>
           <button onClick={handleSave} disabled={loading}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
             <Check size={16} />
-            {loading ? "Saving..." : "Save"}
+            {loading ? <T text="Saving..." /> : <T text="Save" />}
           </button>
         </div>
       </div>
@@ -121,24 +139,24 @@ function AddCropModal({ onClose, onSave, farms }) {
 }
 
 const statusColor = (status) => {
-  if (status === "Growing")  return "bg-green-100 text-green-700";
+  if (status === "Growing")   return "bg-green-100 text-green-700";
   if (status === "Harvested") return "bg-blue-100 text-blue-700";
-  if (status === "Failed")   return "bg-red-100 text-red-700";
+  if (status === "Failed")    return "bg-red-100 text-red-700";
   return "bg-gray-100 text-gray-600";
 };
 
 const AdminCrops = () => {
-  const [showModal, setShowModal]     = useState(false);
-  const [crops, setCrops]             = useState([]);
-  const [farms, setFarms]             = useState([]);
+  const [showModal, setShowModal]       = useState(false);
+  const [crops, setCrops]               = useState([]);
+  const [farms, setFarms]               = useState([]);
   const [loadingCrops, setLoadingCrops] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [cropsRes, farmsRes] = await Promise.all([
-          fetch(`${API}/crops`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/farms`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/crops`, { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/farms`, { headers: { Authorization: `Bearer ${getToken()}` } }),
         ]);
         const cropsData = await cropsRes.json();
         const farmsData = await farmsRes.json();
@@ -158,7 +176,7 @@ const AdminCrops = () => {
   const handleDelete = async (id) => {
     if (!confirm("Delete this crop?")) return;
     try {
-      await fetch(`${API}/crops/${id}`, {
+      await fetch(`${API_URL}/api/crops/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
@@ -173,7 +191,9 @@ const AdminCrops = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Crop Management</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+          <T text="Crop Management" />
+        </h1>
         <div className="flex items-center gap-3">
           <div className="relative flex-1 sm:flex-none sm:w-64">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -191,33 +211,38 @@ const AdminCrops = () => {
 
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <p className="text-sm text-gray-500 font-sans">Monitoring and tracking heritage crop cycles.</p>
+          <p className="text-sm text-gray-500 font-sans">
+            <T text="Monitoring and tracking heritage crop cycles." />
+          </p>
           <button onClick={() => setShowModal(true)}
             className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0">
             <Plus size={18} />
-            Add New Crop
+            <T text="Add New Crop" />
           </button>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-5 bg-[#f0ece0]">
-            <h3 className="text-lg font-semibold text-gray-800">Crop Registry</h3>
+            <h3 className="text-lg font-semibold text-gray-800">
+              <T text="Crop Registry" />
+            </h3>
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1.5fr_1.2fr_1fr_0.8fr] gap-4 px-6 py-3 border-b border-gray-100">
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">Crop</span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">Farm</span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">Plant Date</span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">Status</span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">Yield (kg)</span>
-            <span className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase text-right">Actions</span>
+            {["Crop", "Farm", "Plant Date", "Status", "Yield (kg)", "Actions"].map((col) => (
+              <span key={col} className={`text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase ${col === "Actions" ? "text-right" : ""}`}>
+                <T text={col} />
+              </span>
+            ))}
           </div>
 
           {loadingCrops ? (
-            <div className="px-6 py-16 text-center text-gray-400 font-sans text-sm">Loading crops...</div>
+            <div className="px-6 py-16 text-center text-gray-400 font-sans text-sm">
+              <T text="Loading crops..." />
+            </div>
           ) : crops.length === 0 ? (
             <div className="px-6 py-16 text-center text-gray-400 font-sans text-sm">
-              No crops added yet. Click "Add New Crop" to get started.
+              <T text='No crops added yet. Click "Add New Crop" to get started.' />
             </div>
           ) : (
             crops.map((crop, i) => (
@@ -228,7 +253,9 @@ const AdminCrops = () => {
                   <div className="w-10 h-10 rounded-lg bg-[#f0ece0] flex items-center justify-center text-lg flex-shrink-0">
                     🌱
                   </div>
-                  <p className="text-base font-semibold text-gray-800">{crop.name}</p>
+                  <p className="text-base font-semibold text-gray-800">
+                    <T text={crop.name} />
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-sm text-gray-600 font-sans">
@@ -242,7 +269,7 @@ const AdminCrops = () => {
 
                 <div>
                   <span className={`text-xs font-sans font-semibold px-3 py-1.5 rounded-full ${statusColor(crop.status)}`}>
-                    {crop.status}
+                    <T text={crop.status} />
                   </span>
                 </div>
 

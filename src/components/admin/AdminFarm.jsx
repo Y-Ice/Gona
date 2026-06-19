@@ -3,9 +3,15 @@ import {
   Search, Settings, Plus, Pencil, Trash2, MapPin, X, Check,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+
+function T({ text }) {
+  const translated = useTranslatedText(text);
+  return <>{translated}</>;
+}
 
 function AddFarmModal({ onClose, onSave }) {
   const [form, setForm] = useState({
@@ -22,7 +28,7 @@ function AddFarmModal({ onClose, onSave }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API}/farms`, {
+      const res = await fetch(`${API_URL}/api/farms`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,7 +51,7 @@ function AddFarmModal({ onClose, onSave }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800">Add New Farm</h2>
+          <h2 className="text-xl font-semibold text-gray-800"><T text="Add New Farm" /></h2>
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
             <X size={18} />
           </button>
@@ -53,25 +59,33 @@ function AddFarmModal({ onClose, onSave }) {
 
         <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Farm Name</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Farm Name" />
+            </label>
             <input name="name" value={form.name} onChange={handleChange} type="text" placeholder="e.g. Green Valley Farm"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Location</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Location" />
+            </label>
             <input name="location" value={form.location} onChange={handleChange} type="text" placeholder="e.g. Ogun State, Nigeria"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Size</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Size" />
+            </label>
             <input name="size" value={form.size} onChange={handleChange} type="number" placeholder="50"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Unit</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Unit" />
+            </label>
             <select name="unit" value={form.unit} onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
               <option>hectares</option>
@@ -80,13 +94,17 @@ function AddFarmModal({ onClose, onSave }) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Specialization</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Specialization" />
+            </label>
             <input name="specialization" value={form.specialization} onChange={handleChange} type="text" placeholder="e.g. Maize & Cassava"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">Status</label>
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Status" />
+            </label>
             <select name="status" value={form.status} onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
               <option>Active</option>
@@ -101,12 +119,12 @@ function AddFarmModal({ onClose, onSave }) {
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
           <button onClick={onClose}
             className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
-            Cancel
+            <T text="Cancel" />
           </button>
           <button onClick={handleSave} disabled={loading}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
             <Check size={16} />
-            {loading ? "Saving..." : "Save"}
+            {loading ? <T text="Saving..." /> : <T text="Save" />}
           </button>
         </div>
       </div>
@@ -122,7 +140,7 @@ const AdminFarm = () => {
   useEffect(() => {
     const fetchFarms = async () => {
       try {
-        const res = await fetch(`${API}/farms`, {
+        const res = await fetch(`${API_URL}/api/farms`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         });
         const data = await res.json();
@@ -141,7 +159,7 @@ const AdminFarm = () => {
   const handleDelete = async (id) => {
     if (!confirm("Delete this farm?")) return;
     try {
-      await fetch(`${API}/farms/${id}`, {
+      await fetch(`${API_URL}/api/farms/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
@@ -172,24 +190,28 @@ const AdminFarm = () => {
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <p className="text-xs font-sans font-semibold text-[#c47a0a] tracking-widest uppercase mb-1">Heritage Estate</p>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Farm Management</h1>
+            <p className="text-xs font-sans font-semibold text-[#c47a0a] tracking-widest uppercase mb-1">
+              <T text="Heritage Estate" />
+            </p>
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+              <T text="Farm Management" />
+            </h1>
           </div>
           <button onClick={() => setShowModal(true)}
             className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto">
             <Plus size={18} />
-            Register New Farm
+            <T text="Register New Farm" />
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {loadingFarms ? (
             <div className="col-span-full text-center text-gray-400 py-16 font-sans text-sm">
-              Loading farms...
+              <T text="Loading farms..." />
             </div>
           ) : farms.length === 0 ? (
             <div className="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center text-gray-500">
-              No farms registered yet. Click "Register New Farm" to add your first farm.
+              <T text='No farms registered yet. Click "Register New Farm" to add your first farm.' />
             </div>
           ) : (
             farms.map((farm) => (
@@ -206,20 +228,26 @@ const AdminFarm = () => {
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-500 font-sans mb-4">
                     <MapPin size={14} />
-                    {farm.location || "No location set"}
+                    {farm.location || <T text="No location set" />}
                   </div>
                   <div className="grid grid-cols-2 gap-4 pb-4 mb-4 border-b border-gray-100">
                     <div>
-                      <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">Farm Size</p>
+                      <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
+                        <T text="Farm Size" />
+                      </p>
                       <p className="text-sm font-semibold text-gray-800">{farm.size} {farm.unit}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">Specialization</p>
-                      <p className="text-sm font-semibold text-gray-800">{farm.specialization || "—"}</p>
+                      <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
+                        <T text="Specialization" />
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {farm.specialization ? <T text={farm.specialization} /> : "—"}
+                      </p>
                     </div>
                   </div>
                   <span className={`text-xs font-sans font-medium px-3 py-1 rounded-full ${farm.status === "Active" ? "bg-[#1e3a2f] text-white" : "bg-gray-500 text-white"}`}>
-                    {farm.status}
+                    <T text={farm.status} />
                   </span>
                 </div>
               </div>

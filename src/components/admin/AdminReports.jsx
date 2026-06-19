@@ -8,27 +8,33 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from "recharts";
+import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
 
+function T({ text }) {
+  const translated = useTranslatedText(text);
+  return <>{translated}</>;
+}
+
 const COLORS = ["#1e3a2f", "#c47a0a", "#3a8a5a", "#7a6a50", "#8a8a8a", "#f5a623"];
 
 const AdminReports = () => {
-  const [farms, setFarms]         = useState([]);
-  const [crops, setCrops]         = useState([]);
-  const [employees, setEmployees] = useState([]);
+  const [farms, setFarms]           = useState([]);
+  const [crops, setCrops]           = useState([]);
+  const [employees, setEmployees]   = useState([]);
   const [activities, setActivities] = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading]       = useState(true);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
         const [farmRes, cropRes, empRes, actRes] = await Promise.all([
-          fetch(`${API}/farms`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/crops`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/employees`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API}/activities`, { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/farms`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/crops`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/employees`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/activities`, { headers: { Authorization: `Bearer ${getToken()}` } }),
         ]);
         const [farmData, cropData, empData, actData] = await Promise.all([
           farmRes.json(), cropRes.json(), empRes.json(), actRes.json(),
@@ -46,40 +52,34 @@ const AdminReports = () => {
     fetchAll();
   }, []);
 
-  // ── Derived Data ──────────────────────────────────────────────
-
   const totalYield = crops
     .filter((c) => c.status === "Harvested")
     .reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
 
-  const growingCrops  = crops.filter((c) => c.status === "Growing").length;
+  const growingCrops   = crops.filter((c) => c.status === "Growing").length;
   const harvestedCrops = crops.filter((c) => c.status === "Harvested").length;
-  const failedCrops   = crops.filter((c) => c.status === "Failed").length;
-  const activeFarms   = farms.filter((f) => f.status === "Active").length;
-  const activeEmps    = employees.filter((e) => e.status === "Active").length;
+  const failedCrops    = crops.filter((c) => c.status === "Failed").length;
+  const activeFarms    = farms.filter((f) => f.status === "Active").length;
+  const activeEmps     = employees.filter((e) => e.status === "Active").length;
 
-  // Crop status pie chart
   const cropStatusData = [
     { name: "Growing",   value: growingCrops },
     { name: "Harvested", value: harvestedCrops },
     { name: "Failed",    value: failedCrops },
   ].filter((d) => d.value > 0);
 
-  // Yield per farm bar chart
   const yieldPerFarm = farms.map((farm) => {
     const farmCrops = crops.filter((c) => c.farmId === farm._id);
     const yield_ = farmCrops.reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
     return { name: farm.name?.split(" ")[0] || "Farm", yield: yield_ };
   });
 
-  // Activity type breakdown
   const activityTypes = activities.reduce((acc, act) => {
     acc[act.type] = (acc[act.type] || 0) + 1;
     return acc;
   }, {});
   const activityData = Object.entries(activityTypes).map(([name, value]) => ({ name, value }));
 
-  // Activities per month (last 6 months)
   const monthlyData = () => {
     const months = {};
     const now = new Date();
@@ -96,7 +96,6 @@ const AdminReports = () => {
     return Object.entries(months).map(([month, count]) => ({ month, count }));
   };
 
-  // Farm performance summary
   const farmPerformance = farms.map((farm) => {
     const farmCrops      = crops.filter((c) => c.farmId === farm._id);
     const farmActivities = activities.filter((a) => a.farmId === farm._id);
@@ -105,30 +104,21 @@ const AdminReports = () => {
     const successRate    = farmCrops.length > 0
       ? Math.round((farmCrops.filter((c) => c.status === "Harvested").length / farmCrops.length) * 100)
       : 0;
-
-    return {
-      ...farm,
-      cropCount:      farmCrops.length,
-      activityCount:  farmActivities.length,
-      employeeCount:  farmEmployees.length,
-      totalYield:     farmYield,
-      successRate,
-    };
+    return { ...farm, cropCount: farmCrops.length, activityCount: farmActivities.length, employeeCount: farmEmployees.length, totalYield: farmYield, successRate };
   });
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f7f4ee] flex items-center justify-center">
-        <p className="text-gray-400 font-sans text-sm">Loading reports...</p>
+        <p className="text-gray-400 font-sans text-sm"><T text="Loading reports..." /></p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      {/* Top Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">Reports & Analytics</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800"><T text="Reports & Analytics" /></h1>
         <div className="flex items-center gap-3">
           <div className="relative flex-1 sm:flex-none sm:w-64">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -149,16 +139,16 @@ const AdminReports = () => {
         {/* Summary Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Active Farms",    value: activeFarms,    icon: <Mountain size={20} className="text-[#7a6a50]" />, bg: "bg-[#f0e8da]" },
-            { label: "Total Crops",     value: crops.length,   icon: <Leaf size={20} className="text-[#3a8a5a]" />,    bg: "bg-[#d8f0e0]" },
-            { label: "Active Staff",    value: activeEmps,     icon: <User size={20} className="text-[#8a8a8a]" />,    bg: "bg-[#e8e8e8]" },
+            { label: "Active Farms",     value: activeFarms,  icon: <Mountain size={20} className="text-[#7a6a50]" />, bg: "bg-[#f0e8da]" },
+            { label: "Total Crops",      value: crops.length, icon: <Leaf size={20} className="text-[#3a8a5a]" />,    bg: "bg-[#d8f0e0]" },
+            { label: "Active Staff",     value: activeEmps,   icon: <User size={20} className="text-[#8a8a8a]" />,    bg: "bg-[#e8e8e8]" },
             { label: "Total Yield (kg)", value: totalYield,   icon: <BarChart2 size={20} className="text-[#c47a0a]" />, bg: "bg-[#fdefd0]" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.bg}`}>
                 {s.icon}
               </div>
-              <p className="text-xs text-gray-400 font-sans uppercase tracking-wide mb-1">{s.label}</p>
+              <p className="text-xs text-gray-400 font-sans uppercase tracking-wide mb-1"><T text={s.label} /></p>
               <p className="text-2xl font-semibold text-gray-800">{s.value}</p>
             </div>
           ))}
@@ -166,13 +156,11 @@ const AdminReports = () => {
 
         {/* Charts Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* Monthly Activity Line Chart */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1">Activity Trend</h3>
-            <p className="text-xs text-gray-400 font-sans mb-5">Activities logged over the last 6 months</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Activity Trend" /></h3>
+            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Activities logged over the last 6 months" /></p>
             {activities.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">No activity data yet</div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No activity data yet" /></div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={monthlyData()}>
@@ -186,12 +174,11 @@ const AdminReports = () => {
             )}
           </div>
 
-          {/* Crop Status Pie Chart */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1">Crop Status Breakdown</h3>
-            <p className="text-xs text-gray-400 font-sans mb-5">Distribution of crop lifecycle stages</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Crop Status Breakdown" /></h3>
+            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Distribution of crop lifecycle stages" /></p>
             {cropStatusData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">No crop data yet</div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No crop data yet" /></div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
@@ -210,13 +197,11 @@ const AdminReports = () => {
 
         {/* Charts Row 2 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* Yield Per Farm Bar Chart */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1">Yield Per Farm</h3>
-            <p className="text-xs text-gray-400 font-sans mb-5">Total yield (kg) across all farms</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Yield Per Farm" /></h3>
+            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Total yield (kg) across all farms" /></p>
             {yieldPerFarm.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">No farm data yet</div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No farm data yet" /></div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={yieldPerFarm}>
@@ -230,12 +215,11 @@ const AdminReports = () => {
             )}
           </div>
 
-          {/* Activity Type Breakdown */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1">Activity Breakdown</h3>
-            <p className="text-xs text-gray-400 font-sans mb-5">Types of activities logged across all farms</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Activity Breakdown" /></h3>
+            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Types of activities logged across all farms" /></p>
             {activityData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">No activity data yet</div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No activity data yet" /></div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={activityData} layout="vertical">
@@ -254,20 +238,22 @@ const AdminReports = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-6 py-5 bg-[#f0ece0] flex items-center justify-between">
             <div>
-              <h3 className="text-base font-semibold text-gray-800">Farm Performance Summary</h3>
-              <p className="text-xs text-gray-400 font-sans mt-0.5">Overview of each farm's output and activity</p>
+              <h3 className="text-base font-semibold text-gray-800"><T text="Farm Performance Summary" /></h3>
+              <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Overview of each farm's output and activity" /></p>
             </div>
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-3 border-b border-gray-100">
             {["Farm", "Status", "Crops", "Employees", "Activities", "Success Rate"].map((h) => (
-              <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">{h}</span>
+              <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+                <T text={h} />
+              </span>
             ))}
           </div>
 
           {farmPerformance.length === 0 ? (
             <div className="p-8 text-center text-gray-400 font-sans text-sm">
-              No farms registered yet.
+              <T text="No farms registered yet." />
             </div>
           ) : (
             farmPerformance.map((farm, i) => (
@@ -285,11 +271,11 @@ const AdminReports = () => {
                 </div>
                 <span className={`text-xs font-sans font-semibold px-2.5 py-1 rounded-full w-fit
                   ${farm.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                  {farm.status}
+                  <T text={farm.status} />
                 </span>
-                <span className="text-sm font-sans text-gray-700">{farm.cropCount} crops</span>
-                <span className="text-sm font-sans text-gray-700">{farm.employeeCount} staff</span>
-                <span className="text-sm font-sans text-gray-700">{farm.activityCount} logs</span>
+                <span className="text-sm font-sans text-gray-700">{farm.cropCount} <T text="crops" /></span>
+                <span className="text-sm font-sans text-gray-700">{farm.employeeCount} <T text="staff" /></span>
+                <span className="text-sm font-sans text-gray-700">{farm.activityCount} <T text="logs" /></span>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-[#1e3a2f] rounded-full" style={{ width: `${farm.successRate}%` }} />
@@ -304,18 +290,20 @@ const AdminReports = () => {
         {/* Crop Details Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-6 py-5 bg-[#f0ece0]">
-            <h3 className="text-base font-semibold text-gray-800">Crop Yield Details</h3>
-            <p className="text-xs text-gray-400 font-sans mt-0.5">Expected vs actual yield for all crops</p>
+            <h3 className="text-base font-semibold text-gray-800"><T text="Crop Yield Details" /></h3>
+            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Expected vs actual yield for all crops" /></p>
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-4 px-6 py-3 border-b border-gray-100">
             {["Crop", "Farm", "Expected (kg)", "Actual (kg)", "Status"].map((h) => (
-              <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">{h}</span>
+              <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+                <T text={h} />
+              </span>
             ))}
           </div>
 
           {crops.length === 0 ? (
-            <div className="p-8 text-center text-gray-400 font-sans text-sm">No crops added yet.</div>
+            <div className="p-8 text-center text-gray-400 font-sans text-sm"><T text="No crops added yet." /></div>
           ) : (
             crops.map((crop, i) => {
               const farm = farms.find((f) => f._id === crop.farmId);
@@ -325,7 +313,7 @@ const AdminReports = () => {
                     ${i !== crops.length - 1 ? "border-b border-gray-100" : ""}`}>
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🌱</span>
-                    <p className="text-sm font-semibold text-gray-800">{crop.name}</p>
+                    <p className="text-sm font-semibold text-gray-800"><T text={crop.name} /></p>
                   </div>
                   <p className="text-sm text-gray-600 font-sans">{farm?.name || "—"}</p>
                   <p className="text-sm text-gray-700 font-sans">{crop.expectedYield || "—"}</p>
@@ -334,7 +322,7 @@ const AdminReports = () => {
                     ${crop.status === "Growing"   ? "bg-green-100 text-green-700"  :
                       crop.status === "Harvested" ? "bg-blue-100 text-blue-700"   :
                       "bg-red-100 text-red-600"}`}>
-                    {crop.status}
+                    <T text={crop.status} />
                   </span>
                 </div>
               );
