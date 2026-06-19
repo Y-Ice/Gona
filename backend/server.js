@@ -15,7 +15,7 @@ const activityRoutes = require('./routes/activities');
 const app = express();
 
 app.use(cors({
-  origin: ['https://gona-psi.vercel.app', 'https://gona-mibt3jg1n-yakubu-isaacs-projects.vercel.app/', 'http://localhost:5173'],
+  origin: ['https://gona-psi.vercel.app', 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json());
