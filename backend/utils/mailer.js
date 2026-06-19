@@ -13,10 +13,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+let transporterReady = false;
 transporter.verify((error, success) => {
   if (error) {
+    transporterReady = false;
     console.error("Email transporter verification failed:", error);
   } else {
+    transporterReady = true;
     console.log("Email transporter is ready to send messages.");
   }
 });
@@ -38,4 +41,8 @@ async function sendOTP(toEmail, otp) {
   }
 }
 
-module.exports = { sendOTP };
+function isTransporterReady() {
+  return transporterReady;
+}
+
+module.exports = { sendOTP, isTransporterReady };
