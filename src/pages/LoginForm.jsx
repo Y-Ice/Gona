@@ -6,6 +6,31 @@ import { Link, useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+function Spinner() {
+  return (
+    <svg
+      className="animate-spin h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+  );
+}
+
 function FloatingInput({ type, name, label, value, onChange, children }) {
   return (
     <div className="relative mb-5">
@@ -26,11 +51,7 @@ function FloatingInput({ type, name, label, value, onChange, children }) {
   );
 }
 
-function GoogleButton({ label }) {
-  function handleGoogleLogin() {
-    window.location.href = `${API_URL}/api/auth/google`;
-  }
-
+function GoogleButton({ label, disabled }) {
   return (
     <>
       <div className="flex items-center gap-3 my-4">
@@ -40,8 +61,9 @@ function GoogleButton({ label }) {
       </div>
       <button
         type="button"
-        onClick={handleGoogleLogin}
-        className="w-full py-3 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2 shadow-sm"
+        disabled={disabled}
+        onClick={() => (window.location.href = `${API_URL}/api/auth/google`)}
+        className="w-full py-3 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <FcGoogle className="text-lg" />
         {label} with Google
@@ -56,6 +78,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // ← NEW
   const [otpStep, setOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
@@ -67,6 +90,7 @@ function LoginForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setLoading(true); // ← NEW
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
@@ -74,9 +98,14 @@ function LoginForm() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (!res.ok) return setError(data.message);
+      if (!res.ok) {
+        setLoading(false); // ← NEW
+        return setError(data.message);
+      }
+      setLoading(false); // ← NEW
       setOtpStep(true);
     } catch (err) {
+      setLoading(false); // ← NEW
       setError("Login failed. Make sure the server is running.");
     }
   }
@@ -108,10 +137,15 @@ function LoginForm() {
   return (
     <div className="min-h-screen bg-[#0d4a17] flex justify-center items-center px-4">
       <div className="w-full max-w-sm bg-[#f3efe4] p-8 rounded-2xl shadow-xl">
-
         <div className="flex flex-col items-center mb-6">
-          <img src="/images/logo3.png" alt="Gona logo" className="w-25 h-25 mb-2" />
-          <p className="text-xs text-gray-500 text-center">Smart Farm Management Platform</p>
+          <img
+            src="/images/logo3.png"
+            alt="Gona logo"
+            className="w-25 h-25 mb-2"
+          />
+          <p className="text-xs text-gray-500 text-center">
+            Smart Farm Management Platform
+          </p>
         </div>
 
         {!otpStep && (
@@ -142,7 +176,9 @@ function LoginForm() {
         {otpStep ? (
           <form onSubmit={handleOtpSubmit}>
             <div className="text-center mb-6">
-              <p className="text-sm font-semibold text-[#0d4a17]">Check your email</p>
+              <p className="text-sm font-semibold text-[#0d4a17]">
+                Check your email
+              </p>
               <p className="text-xs text-gray-500 mt-1">
                 We sent a 6-digit code to <strong>{formData.email}</strong>
               </p>
@@ -157,21 +193,36 @@ function LoginForm() {
             <button
               type="submit"
               disabled={otpLoading}
-              className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {otpLoading ? "Verifying..." : "Verify & Sign In"}
+              {otpLoading ? (
+                <>
+                  <Spinner /> Verifying...
+                </>
+              ) : (
+                "Verify & Sign In"
+              )}
             </button>
             <p
-              onClick={() => { setOtpStep(false); setOtp(""); setError(""); }}
+              onClick={() => {
+                setOtpStep(false);
+                setOtp("");
+                setError("");
+              }}
               className="text-center mt-4 text-xs text-[#8b6f3d] cursor-pointer"
             >
               ← Back to login
             </p>
           </form>
-
         ) : activeTab ? (
           <form onSubmit={handleSubmit}>
-            <FloatingInput type="email" name="email" label="EMAIL" value={formData.email} onChange={handleChange} />
+            <FloatingInput
+              type="email"
+              name="email"
+              label="EMAIL"
+              value={formData.email}
+              onChange={handleChange}
+            />
             <div className="relative mb-4">
               <FloatingInput
                 type={showPassword ? "text" : "password"}
@@ -187,18 +238,27 @@ function LoginForm() {
                 {showPassword ? <FaEye /> : <FaEyeSlash />}
               </span>
             </div>
+
+            {/* Sign In button with spinner */}
             <button
               type="submit"
-              className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full py-3.5 bg-[#171305] text-white text-sm rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <FaSignInAlt /> Sign In
+              {loading ? (
+                <>
+                  <Spinner /> Signing in...
+                </>
+              ) : (
+                <>
+                  <FaSignInAlt /> Sign In
+                </>
+              )}
             </button>
-            {/* ✅ Google Sign In button */}
-            <GoogleButton label="Sign In" />
-          </form>
 
+            <GoogleButton label="Sign In" disabled={loading} />
+          </form>
         ) : (
-          // RegisterForm has its own Google button inside
           <RegisterForm />
         )}
 
