@@ -7,8 +7,6 @@ const User = require('../models/User');
 const { sendOTP } = require('../utils/mailer');
 const passport = require('passport');
 
-const otpStore = {};
-
 // ✅ REGISTER — create account then send OTP (no token yet)
 router.post('/register', async (req, res) => {
   try {
@@ -18,12 +16,14 @@ router.post('/register', async (req, res) => {
     if (existingUser) return res.status(400).json({ message: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ name, email, password: hashedPassword });
 
-    // Generate OTP and store it
+    // Generate OTP and save to database
     const otp = crypto.randomInt(100000, 999999).toString();
-    const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
-    otpStore[email] = { otp, expires };
+    const otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
 
     // Send OTP email in the background, do not block the response.
     sendOTP(email, otp).catch((mailErr) => {
@@ -65,10 +65,12 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    // Generate OTP and store it
+    // Generate OTP and save to database
     const otp = crypto.randomInt(100000, 999999).toString();
-    const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
-    otpStore[email] = { otp, expires };
+    const otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
 
     // Send OTP email in the background, do not block the response.
     sendOTP(email, otp).catch((mailErr) => {
@@ -86,24 +88,32 @@ router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const record = otpStore[email];
+    const user = await User.findOne({ email });
 
-    if (!record) {
+    if (!user) {
       return res.status(400).json({ message: 'No OTP found. Please try again.' });
     }
 
-    if (Date.now() > record.expires) {
-      delete otpStore[email];
+    if (!user.otp || !user.otpExpires) {
+      return res.status(400).json({ message: 'No OTP found. Please try again.' });
+    }
+
+    if (Date.now() > user.otpExpires) {
+      user.otp = null;
+      user.otpExpires = null;
+      await user.save();
       return res.status(400).json({ message: 'OTP has expired. Please try again.' });
     }
 
-    if (record.otp !== otp) {
+    if (user.otp !== otp) {
       return res.status(400).json({ message: 'Incorrect OTP. Try again.' });
     }
 
-    delete otpStore[email];
+    // Clear OTP after verification
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
 
-    const user = await User.findOne({ email });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
