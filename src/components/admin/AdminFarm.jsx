@@ -13,23 +13,75 @@ function T({ text }) {
   return <>{translated}</>;
 }
 
-function AddFarmModal({ onClose, onSave }) {
+function FarmModal({ onClose, onSave, existingFarm }) {
+  const isEditing = !!existingFarm;
   const [form, setForm] = useState({
-    name: "", location: "", size: "", unit: "hectares",
-    specialization: "", status: "Active",
+    name: existingFarm?.name || "",
+    location: existingFarm?.location || "",
+    size: existingFarm?.size || "",
+    unit: existingFarm?.unit || "hectares",
+    specialization: existingFarm?.specialization || "",
+    status: existingFarm?.status || "Active",
+    coordinates: existingFarm?.coordinates || null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [locating, setLocating] = useState(false);
+  const [locSuccess, setLocSuccess] = useState(false);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Your browser doesn't support location.");
+      return;
+    }
+    setLocating(true);
+    setError("");
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await res.json();
+          const address = data.display_name || `${latitude}, ${longitude}`;
+          setForm((prev) => ({
+            ...prev,
+            location: address,
+            coordinates: { latitude, longitude },
+          }));
+          setLocSuccess(true);
+        } catch {
+          setForm((prev) => ({
+            ...prev,
+            location: `${latitude}, ${longitude}`,
+            coordinates: { latitude, longitude },
+          }));
+          setLocSuccess(true);
+        }
+        setLocating(false);
+      },
+      () => {
+        setError("Couldn't get location. Please enter it manually.");
+        setLocating(false);
+      }
+    );
+  };
 
   const handleSave = async () => {
     if (!form.name) { setError("Farm name is required."); return; }
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_URL}/api/farms`, {
-        method: "POST",
+      const url = isEditing
+        ? `${API_URL}/api/farms/${existingFarm._id}`
+        : `${API_URL}/api/farms`;
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
@@ -38,7 +90,7 @@ function AddFarmModal({ onClose, onSave }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save farm");
-      onSave(data);
+      onSave(data, isEditing);
       onClose();
     } catch (err) {
       setError(err.message);
@@ -51,7 +103,9 @@ function AddFarmModal({ onClose, onSave }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800"><T text="Add New Farm" /></h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            <T text={isEditing ? "Edit Farm" : "Add New Farm"} />
+          </h2>
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
             <X size={18} />
           </button>
@@ -70,8 +124,35 @@ function AddFarmModal({ onClose, onSave }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Location" />
             </label>
-            <input name="location" value={form.location} onChange={handleChange} type="text" placeholder="e.g. Ogun State, Nigeria"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={locating}
+              className={`w-full mb-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-sans font-medium transition-colors ${
+                locSuccess
+                  ? "border-green-400 bg-green-50 text-green-700"
+                  : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <MapPin size={15} />
+              {locating
+                ? <T text="Getting location..." />
+                : locSuccess
+                ? <T text="Location detected!" />
+                : <T text="Use My Current Location" />}
+            </button>
+            <p className="text-xs text-gray-400 font-sans text-center mb-2">— or enter manually —</p>
+            <input
+              name="location"
+              value={form.location}
+              onChange={(e) => {
+                setLocSuccess(false);
+                setForm({ ...form, location: e.target.value, coordinates: null });
+              }}
+              type="text"
+              placeholder="e.g. Ogun State, Nigeria"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
@@ -124,7 +205,7 @@ function AddFarmModal({ onClose, onSave }) {
           <button onClick={handleSave} disabled={loading}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : <T text="Save" />}
+            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
           </button>
         </div>
       </div>
@@ -134,6 +215,7 @@ function AddFarmModal({ onClose, onSave }) {
 
 const AdminFarm = () => {
   const [showModal, setShowModal] = useState(false);
+  const [editingFarm, setEditingFarm] = useState(null);
   const [farms, setFarms] = useState([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
 
@@ -154,7 +236,13 @@ const AdminFarm = () => {
     fetchFarms();
   }, []);
 
-  const handleSave = (newFarm) => setFarms((prev) => [...prev, newFarm]);
+  const handleSave = (farm, isEditing) => {
+    if (isEditing) {
+      setFarms((prev) => prev.map((f) => f._id === farm._id ? farm : f));
+    } else {
+      setFarms((prev) => [...prev, farm]);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this farm?")) return;
@@ -167,6 +255,16 @@ const AdminFarm = () => {
     } catch (err) {
       console.error("Failed to delete farm:", err);
     }
+  };
+
+  const handleEdit = (farm) => {
+    setEditingFarm(farm);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingFarm(null);
   };
 
   return (
@@ -220,7 +318,9 @@ const AdminFarm = () => {
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">{farm.name}</h3>
                     <div className="flex items-center gap-3 text-gray-400 flex-shrink-0">
-                      <button className="hover:text-gray-600"><Pencil size={16} /></button>
+                      <button onClick={() => handleEdit(farm)} className="hover:text-gray-600">
+                        <Pencil size={16} />
+                      </button>
                       <button onClick={() => handleDelete(farm._id)} className="hover:text-red-500">
                         <Trash2 size={16} />
                       </button>
@@ -256,7 +356,13 @@ const AdminFarm = () => {
         </div>
       </div>
 
-      {showModal && <AddFarmModal onClose={() => setShowModal(false)} onSave={handleSave} />}
+      {showModal && (
+        <FarmModal
+          onClose={handleCloseModal}
+          onSave={handleSave}
+          existingFarm={editingFarm}
+        />
+      )}
     </div>
   );
 };
