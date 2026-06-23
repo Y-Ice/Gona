@@ -13,10 +13,15 @@ function T({ text }) {
   return <>{translated}</>;
 }
 
-function AddCropModal({ onClose, onSave, farms }) {
+function CropModal({ onClose, onSave, farms, existingCrop }) {
+  const isEditing = !!existingCrop;
   const [form, setForm] = useState({
-    name: "", farmId: farms[0]?._id || "", plantDate: "",
-    harvestDate: "", expectedYield: "", status: "Growing",
+    name: existingCrop?.name || "",
+    farmId: existingCrop?.farmId || farms[0]?._id || "",
+    plantDate: existingCrop?.plantDate ? existingCrop.plantDate.slice(0, 10) : "",
+    harvestDate: existingCrop?.harvestDate ? existingCrop.harvestDate.slice(0, 10) : "",
+    expectedYield: existingCrop?.expectedYield || "",
+    status: existingCrop?.status || "Growing",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,8 +34,10 @@ function AddCropModal({ onClose, onSave, farms }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_URL}/api/crops`, {
-        method: "POST",
+      const url = isEditing ? `${API_URL}/api/crops/${existingCrop._id}` : `${API_URL}/api/crops`;
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
@@ -39,7 +46,7 @@ function AddCropModal({ onClose, onSave, farms }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save crop");
-      onSave(data);
+      onSave(data, isEditing);
       onClose();
     } catch (err) {
       setError(err.message);
@@ -52,7 +59,9 @@ function AddCropModal({ onClose, onSave, farms }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800"><T text="Add New Crop" /></h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            <T text={isEditing ? "Edit Crop" : "Add New Crop"} />
+          </h2>
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
             <X size={18} />
           </button>
@@ -130,7 +139,7 @@ function AddCropModal({ onClose, onSave, farms }) {
           <button onClick={handleSave} disabled={loading}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : <T text="Save" />}
+            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
           </button>
         </div>
       </div>
@@ -147,6 +156,7 @@ const statusColor = (status) => {
 
 const AdminCrops = () => {
   const [showModal, setShowModal]       = useState(false);
+  const [editingCrop, setEditingCrop]   = useState(null);
   const [crops, setCrops]               = useState([]);
   const [farms, setFarms]               = useState([]);
   const [loadingCrops, setLoadingCrops] = useState(true);
@@ -171,7 +181,13 @@ const AdminCrops = () => {
     fetchData();
   }, []);
 
-  const handleSave = (newCrop) => setCrops((prev) => [...prev, newCrop]);
+  const handleSave = (crop, isEditing) => {
+    if (isEditing) {
+      setCrops((prev) => prev.map((c) => c._id === crop._id ? crop : c));
+    } else {
+      setCrops((prev) => [...prev, crop]);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this crop?")) return;
@@ -184,6 +200,16 @@ const AdminCrops = () => {
     } catch (err) {
       console.error("Failed to delete crop:", err);
     }
+  };
+
+  const handleEdit = (crop) => {
+    setEditingCrop(crop);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingCrop(null);
   };
 
   const getFarmName = (farmId) => farms.find((f) => f._id === farmId)?.name || "Unknown Farm";
@@ -278,7 +304,7 @@ const AdminCrops = () => {
                 </div>
 
                 <div className="lg:text-right flex lg:justify-end items-center gap-3 text-gray-400">
-                  <button className="hover:text-gray-600"><Pencil size={15} /></button>
+                  <button onClick={() => handleEdit(crop)} className="hover:text-gray-600"><Pencil size={15} /></button>
                   <button onClick={() => handleDelete(crop._id)} className="hover:text-red-500"><Trash2 size={15} /></button>
                 </div>
               </div>
@@ -288,10 +314,11 @@ const AdminCrops = () => {
       </div>
 
       {showModal && (
-        <AddCropModal
-          onClose={() => setShowModal(false)}
+        <CropModal
+          onClose={handleCloseModal}
           onSave={handleSave}
           farms={farms}
+          existingCrop={editingCrop}
         />
       )}
     </div>

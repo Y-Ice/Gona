@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import {
-  Settings, Search, BarChart2, TrendingUp, Leaf,
-  User, Mountain, Building2, Calendar, Download,
+  Settings, Search, BarChart2, Leaf,
+  User, Mountain, Building2, FileText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, LineChart, Line,
+  PieChart, Pie, Cell, LineChart, Line,
 } from "recharts";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
@@ -26,6 +28,7 @@ const AdminReports = () => {
   const [employees, setEmployees]   = useState([]);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [exporting, setExporting]   = useState(false);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -52,10 +55,10 @@ const AdminReports = () => {
     fetchAll();
   }, []);
 
-  const totalYield = crops
-    .filter((c) => c.status === "Harvested")
-    .reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
+  const getFarmName = (id) => farms.find((f) => f._id === id)?.name || "—";
+  const getEmpName  = (id) => employees.find((e) => e._id === id)?.name || "—";
 
+  const totalYield     = crops.filter((c) => c.status === "Harvested").reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
   const growingCrops   = crops.filter((c) => c.status === "Growing").length;
   const harvestedCrops = crops.filter((c) => c.status === "Harvested").length;
   const failedCrops    = crops.filter((c) => c.status === "Failed").length;
@@ -107,6 +110,112 @@ const AdminReports = () => {
     return { ...farm, cropCount: farmCrops.length, activityCount: farmActivities.length, employeeCount: farmEmployees.length, totalYield: farmYield, successRate };
   });
 
+  const exportPDF = () => {
+    setExporting(true);
+    try {
+      const doc = new jsPDF();
+      const date = new Date().toLocaleDateString();
+
+      // Header
+      doc.setFillColor(30, 58, 47);
+      doc.rect(0, 0, 210, 28, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("Gona Farm Report", 14, 17);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generated: ${date}`, 150, 17);
+
+      // Summary stats
+      doc.setTextColor(30, 58, 47);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("Summary", 14, 38);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      const stats = [
+        `Active Farms: ${activeFarms}`,
+        `Total Crops: ${crops.length}`,
+        `Active Staff: ${activeEmps}`,
+        `Total Yield: ${totalYield} kg`,
+        `Activities Logged: ${activities.length}`,
+      ];
+      stats.forEach((s, i) => doc.text(s, 14 + (i % 3) * 65, 46 + Math.floor(i / 3) * 7));
+
+      // Farm Performance table
+      autoTable(doc, {
+        startY: 62,
+        head: [["Farm", "Status", "Crops", "Staff", "Activities", "Success Rate"]],
+        body: farmPerformance.map((f) => [
+          f.name, f.status, f.cropCount, f.employeeCount, f.activityCount, `${f.successRate}%`,
+        ]),
+        headStyles: { fillColor: [30, 58, 47], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        alternateRowStyles: { fillColor: [247, 244, 238] },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Crops table
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [["Crop", "Farm", "Expected (kg)", "Actual (kg)", "Status"]],
+        body: crops.map((c) => [
+          c.name, getFarmName(c.farmId),
+          c.expectedYield || "—", c.actualYield || "—", c.status,
+        ]),
+        headStyles: { fillColor: [196, 122, 10], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        alternateRowStyles: { fillColor: [247, 244, 238] },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Employees table
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [["Name", "Role", "Farm", "Phone", "Status"]],
+        body: employees.map((e) => [
+          e.name, e.role || "—", getFarmName(e.farmId), e.phone || "—", e.status,
+        ]),
+        headStyles: { fillColor: [30, 58, 47], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        alternateRowStyles: { fillColor: [247, 244, 238] },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Activities table
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [["Date", "Farm", "Type", "Employee", "Description"]],
+        body: activities.map((a) => [
+          a.date ? new Date(a.date).toLocaleDateString() : "—",
+          getFarmName(a.farmId), a.type, getEmpName(a.employeeId),
+          a.description?.slice(0, 40) + (a.description?.length > 40 ? "..." : ""),
+        ]),
+        headStyles: { fillColor: [196, 122, 10], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        alternateRowStyles: { fillColor: [247, 244, 238] },
+        margin: { left: 14, right: 14 },
+      });
+
+      // Footer on every page
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Gona Farm Management  •  Page ${i} of ${pageCount}`, 14, 290);
+      }
+
+      doc.save(`Gona_Report_${new Date().toISOString().split("T")[0]}.pdf`);
+    } catch (err) {
+      console.error("PDF export failed:", err);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f7f4ee] flex items-center justify-center">
@@ -135,6 +244,19 @@ const AdminReports = () => {
       </div>
 
       <div className="p-4 sm:p-6 flex flex-col gap-6">
+
+        {/* Export Button */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800"><T text="Export Report" /></h3>
+            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Download your full farm data as a PDF report" /></p>
+          </div>
+          <button onClick={exportPDF} disabled={exporting}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a2f] text-white text-sm font-sans font-medium hover:bg-[#2a4f3f] disabled:opacity-50 transition-colors">
+            <FileText size={16} />
+            {exporting ? <T text="Generating PDF..." /> : <T text="Download PDF Report" />}
+          </button>
+        </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -236,11 +358,9 @@ const AdminReports = () => {
 
         {/* Farm Performance Summary */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-5 bg-[#f0ece0] flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-semibold text-gray-800"><T text="Farm Performance Summary" /></h3>
-              <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Overview of each farm's output and activity" /></p>
-            </div>
+          <div className="px-6 py-5 bg-[#f0ece0]">
+            <h3 className="text-base font-semibold text-gray-800"><T text="Farm Performance Summary" /></h3>
+            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Overview of each farm's output and activity" /></p>
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-3 border-b border-gray-100">
@@ -252,9 +372,7 @@ const AdminReports = () => {
           </div>
 
           {farmPerformance.length === 0 ? (
-            <div className="p-8 text-center text-gray-400 font-sans text-sm">
-              <T text="No farms registered yet." />
-            </div>
+            <div className="p-8 text-center text-gray-400 font-sans text-sm"><T text="No farms registered yet." /></div>
           ) : (
             farmPerformance.map((farm, i) => (
               <div key={farm._id}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Search, Settings, UserPlus, Phone, Building2, ListChecks,
+  Search, Settings, UserPlus, Phone, Building2,
   Pencil, Trash2, X, Check, Mail,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,10 +14,15 @@ function T({ text }) {
   return <>{translated}</>;
 }
 
-function AddEmployeeModal({ onClose, onSave, farms }) {
+function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
+  const isEditing = !!existingEmployee;
   const [form, setForm] = useState({
-    name: "", role: "", phone: "", email: "",
-    farmId: farms[0]?._id || "", status: "Active",
+    name: existingEmployee?.name || "",
+    role: existingEmployee?.role || "",
+    phone: existingEmployee?.phone || "",
+    email: existingEmployee?.email || "",
+    farmId: existingEmployee?.farmId || farms[0]?._id || "",
+    status: existingEmployee?.status || "Active",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,8 +34,10 @@ function AddEmployeeModal({ onClose, onSave, farms }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_URL}/api/employees`, {
-        method: "POST",
+      const url = isEditing ? `${API_URL}/api/employees/${existingEmployee._id}` : `${API_URL}/api/employees`;
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
@@ -39,7 +46,7 @@ function AddEmployeeModal({ onClose, onSave, farms }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save employee");
-      onSave(data);
+      onSave(data, isEditing);
       onClose();
     } catch (err) {
       setError(err.message);
@@ -52,7 +59,9 @@ function AddEmployeeModal({ onClose, onSave, farms }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800"><T text="Add Employee" /></h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            <T text={isEditing ? "Edit Employee" : "Add Employee"} />
+          </h2>
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
             <X size={18} />
           </button>
@@ -130,7 +139,7 @@ function AddEmployeeModal({ onClose, onSave, farms }) {
           <button onClick={handleSave} disabled={loading}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : <T text="Save" />}
+            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
           </button>
         </div>
       </div>
@@ -149,10 +158,11 @@ const getInitials = (name) =>
   name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "??";
 
 const AdminEmployees = () => {
-  const [showModal, setShowModal]         = useState(false);
-  const [employees, setEmployees]         = useState([]);
-  const [farms, setFarms]                 = useState([]);
-  const [loadingEmps, setLoadingEmps]     = useState(true);
+  const [showModal, setShowModal]           = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [employees, setEmployees]           = useState([]);
+  const [farms, setFarms]                   = useState([]);
+  const [loadingEmps, setLoadingEmps]       = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -174,7 +184,13 @@ const AdminEmployees = () => {
     fetchData();
   }, []);
 
-  const handleSave   = (newEmp) => setEmployees((prev) => [...prev, newEmp]);
+  const handleSave = (emp, isEditing) => {
+    if (isEditing) {
+      setEmployees((prev) => prev.map((e) => e._id === emp._id ? emp : e));
+    } else {
+      setEmployees((prev) => [...prev, emp]);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm("Remove this employee?")) return;
@@ -187,6 +203,16 @@ const AdminEmployees = () => {
     } catch (err) {
       console.error("Failed to delete employee:", err);
     }
+  };
+
+  const handleEdit = (emp) => {
+    setEditingEmployee(emp);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingEmployee(null);
   };
 
   const getFarmName = (farmId) => farms.find((f) => f._id === farmId)?.name || "No Farm";
@@ -271,7 +297,8 @@ const AdminEmployees = () => {
                     <T text={emp.status} />
                   </span>
                   <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                    <button onClick={() => handleEdit(emp)}
+                      className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => handleDelete(emp._id)}
@@ -287,10 +314,11 @@ const AdminEmployees = () => {
       </div>
 
       {showModal && (
-        <AddEmployeeModal
-          onClose={() => setShowModal(false)}
+        <EmployeeModal
+          onClose={handleCloseModal}
           onSave={handleSave}
           farms={farms}
+          existingEmployee={editingEmployee}
         />
       )}
     </div>

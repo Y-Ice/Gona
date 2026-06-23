@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Search, Settings, Plus, Trash2, X, Check,
+  Search, Settings, Plus, Trash2, X, Check, Pencil,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
@@ -13,16 +13,17 @@ function T({ text }) {
   return <>{translated}</>;
 }
 
-function AddActivityModal({ onClose, onSave, farms, employees }) {
+function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) {
+  const isEditing = !!existingActivity;
   const [form, setForm] = useState({
-    farmId: farms[0]?._id || "",
-    employeeId: employees[0]?._id || "",
-    date: new Date().toISOString().split("T")[0],
-    type: "Planting",
-    description: "",
-    inputName: "",
-    inputQty: "",
-    inputUnit: "",
+    farmId:      existingActivity?.farmId      || farms[0]?._id || "",
+    employeeId:  existingActivity?.employeeId  || employees[0]?._id || "",
+    date:        existingActivity?.date        ? existingActivity.date.slice(0, 10) : new Date().toISOString().split("T")[0],
+    type:        existingActivity?.type        || "Planting",
+    description: existingActivity?.description || "",
+    inputName:   existingActivity?.inputs?.[0]?.name  || "",
+    inputQty:    existingActivity?.inputs?.[0]?.qty   || "",
+    inputUnit:   existingActivity?.inputs?.[0]?.unit  || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,24 +41,29 @@ function AddActivityModal({ onClose, onSave, farms, employees }) {
       : [];
 
     try {
-      const res = await fetch(`${API_URL}/api/activities`, {
-        method: "POST",
+      const url = isEditing
+        ? `${API_URL}/api/activities/${existingActivity._id}`
+        : `${API_URL}/api/activities`;
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
-          farmId:     form.farmId,
-          employeeId: form.employeeId,
-          date:       form.date,
-          type:       form.type,
+          farmId:      form.farmId,
+          employeeId:  form.employeeId,
+          date:        form.date,
+          type:        form.type,
           description: form.description,
           inputs,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save activity");
-      onSave(data);
+      onSave(data, isEditing);
       onClose();
     } catch (err) {
       setError(err.message);
@@ -70,7 +76,9 @@ function AddActivityModal({ onClose, onSave, farms, employees }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800"><T text="Log Activity" /></h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            <T text={isEditing ? "Edit Activity" : "Log Activity"} />
+          </h2>
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
             <X size={18} />
           </button>
@@ -168,7 +176,7 @@ function AddActivityModal({ onClose, onSave, farms, employees }) {
           <button onClick={handleSave} disabled={loading}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : <T text="Save" />}
+            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
           </button>
         </div>
       </div>
@@ -178,24 +186,25 @@ function AddActivityModal({ onClose, onSave, farms, employees }) {
 
 const typeColor = (type) => {
   const map = {
-    Planting:     "bg-green-100 text-green-700",
-    Fertilizing:  "bg-yellow-100 text-yellow-700",
-    Weeding:      "bg-orange-100 text-orange-700",
-    Irrigation:   "bg-blue-100 text-blue-700",
+    Planting:       "bg-green-100 text-green-700",
+    Fertilizing:    "bg-yellow-100 text-yellow-700",
+    Weeding:        "bg-orange-100 text-orange-700",
+    Irrigation:     "bg-blue-100 text-blue-700",
     "Pest Control": "bg-red-100 text-red-700",
-    Feeding:      "bg-purple-100 text-purple-700",
-    Harvesting:   "bg-emerald-100 text-emerald-700",
-    Other:        "bg-gray-100 text-gray-600",
+    Feeding:        "bg-purple-100 text-purple-700",
+    Harvesting:     "bg-emerald-100 text-emerald-700",
+    Other:          "bg-gray-100 text-gray-600",
   };
   return map[type] || "bg-gray-100 text-gray-600";
 };
 
 const AdminActivities = () => {
-  const [showModal, setShowModal]       = useState(false);
-  const [activities, setActivities]     = useState([]);
-  const [farms, setFarms]               = useState([]);
-  const [employees, setEmployees]       = useState([]);
-  const [loadingActivities, setLoading] = useState(true);
+  const [showModal, setShowModal]           = useState(false);
+  const [editingActivity, setEditingActivity] = useState(null);
+  const [activities, setActivities]         = useState([]);
+  const [farms, setFarms]                   = useState([]);
+  const [employees, setEmployees]           = useState([]);
+  const [loadingActivities, setLoading]     = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -220,7 +229,13 @@ const AdminActivities = () => {
     fetchData();
   }, []);
 
-  const handleSave = (newActivity) => setActivities((prev) => [...prev, newActivity]);
+  const handleSave = (activity, isEditing) => {
+    if (isEditing) {
+      setActivities((prev) => prev.map((a) => a._id === activity._id ? activity : a));
+    } else {
+      setActivities((prev) => [...prev, activity]);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this activity log?")) return;
@@ -233,6 +248,16 @@ const AdminActivities = () => {
     } catch (err) {
       console.error("Failed to delete activity:", err);
     }
+  };
+
+  const handleEdit = (activity) => {
+    setEditingActivity(activity);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingActivity(null);
   };
 
   const getFarmName = (id) => farms.find((f) => f._id === id)?.name || "—";
@@ -268,7 +293,7 @@ const AdminActivities = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="hidden lg:grid grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.6fr] gap-4 px-6 py-3 bg-[#f7f4ee] border-b border-gray-100">
+          <div className="hidden lg:grid grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.8fr] gap-4 px-6 py-3 bg-[#f7f4ee] border-b border-gray-100">
             {["Date", "Farm", "Type", "Description", "Employee", "Inputs", "Actions"].map((h) => (
               <span key={h} className={`text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase ${h === "Actions" ? "text-right" : ""}`}>
                 <T text={h} />
@@ -287,7 +312,7 @@ const AdminActivities = () => {
           ) : (
             activities.map((act, i) => (
               <div key={act._id}
-                className={`grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.6fr] gap-2 lg:gap-4 px-6 py-4 lg:items-center
+                className={`grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.8fr] gap-2 lg:gap-4 px-6 py-4 lg:items-center
                   ${i !== activities.length - 1 ? "border-b border-gray-100" : ""}`}>
                 <span className="text-sm font-sans text-gray-700">
                   <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2"><T text="Date" />:</span>
@@ -316,8 +341,11 @@ const AdminActivities = () => {
                     ? `${act.inputs[0].name} (${act.inputs[0].qty} ${act.inputs[0].unit})`
                     : <T text="None" />}
                 </span>
-                <div className="lg:text-right">
-                  <button onClick={() => handleDelete(act._id)} className="text-red-400 hover:text-red-600">
+                <div className="lg:text-right flex lg:justify-end items-center gap-3 text-gray-400">
+                  <button onClick={() => handleEdit(act)} className="hover:text-gray-600">
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => handleDelete(act._id)} className="hover:text-red-500">
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -328,11 +356,12 @@ const AdminActivities = () => {
       </div>
 
       {showModal && (
-        <AddActivityModal
-          onClose={() => setShowModal(false)}
+        <ActivityModal
+          onClose={handleCloseModal}
           onSave={handleSave}
           farms={farms}
           employees={employees}
+          existingActivity={editingActivity}
         />
       )}
     </div>
