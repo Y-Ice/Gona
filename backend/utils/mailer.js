@@ -1,21 +1,11 @@
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // SSL on 465
-  family: 4,    // force IPv4
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendOTP(toEmail, otp) {
   try {
-    const info = await transporter.sendMail({
-      from: `"Gona" <${process.env.EMAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: "Gona <onboarding@resend.dev>",
       to: toEmail,
       subject: "Your Gona OTP Code",
       text: `Your one-time code is: ${otp}. It expires in 5 minutes.`,
@@ -87,8 +77,14 @@ async function sendOTP(toEmail, otp) {
       </table>
       `,
     });
-    console.log(`OTP email sent to ${toEmail}: ${info.response}`);
-    return info;
+
+    if (error) {
+      console.error(`Failed to send OTP email to ${toEmail}:`, error);
+      throw new Error(error.message);
+    }
+
+    console.log(`OTP email sent to ${toEmail}:`, data);
+    return data;
   } catch (err) {
     console.error(`Failed to send OTP email to ${toEmail}:`, err);
     throw err;
