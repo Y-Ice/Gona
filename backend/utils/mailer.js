@@ -1,92 +1,68 @@
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS,
-  },
-});
-
 async function sendOTP(toEmail, otp) {
   try {
-    const info = await transporter.sendMail({
-      from: `"Gona" <${process.env.BREVO_SMTP_USER}>`,
-      to: toEmail,
-      subject: "Your Gona OTP Code",
-      text: `Your one-time code is: ${otp}. It expires in 5 minutes.`,
-      html: `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3efe4; padding:40px 0; font-family:Arial, Helvetica, sans-serif;">
-        <tr>
-          <td align="center">
-            <table role="presentation" width="420" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-
-              <!-- Header -->
-              <tr>
-                <td style="background-color:#0d4a17; padding:28px 32px; text-align:center;">
-                  <h1 style="margin:0; color:#ffffff; font-size:22px; font-weight:700; letter-spacing:0.5px;">
-                    Gona
-                  </h1>
-                  <p style="margin:4px 0 0; color:#d7e9da; font-size:12px;">
-                    Smart Farm Management Platform
-                  </p>
-                </td>
-              </tr>
-
-              <!-- Body -->
-              <tr>
-                <td style="padding:36px 32px 24px; text-align:center;">
-                  <p style="margin:0 0 8px; color:#171305; font-size:16px; font-weight:600;">
-                    Your verification code
-                  </p>
-                  <p style="margin:0 0 24px; color:#8b8b8b; font-size:13px;">
-                    Enter this code to continue signing in to your account.
-                  </p>
-
-                  <!-- OTP box -->
-                  <div style="display:inline-block; background-color:#f3efe4; border:1px solid #e6e0d3; border-radius:12px; padding:16px 32px; margin-bottom:24px;">
-                    <span style="font-size:32px; font-weight:700; letter-spacing:8px; color:#0d4a17;">
-                      ${otp}
-                    </span>
-                  </div>
-
-                  <p style="margin:0; color:#8b8b8b; font-size:13px;">
-                    This code expires in <strong style="color:#171305;">5 minutes</strong>.
-                  </p>
-                </td>
-              </tr>
-
-              <!-- Divider -->
-              <tr>
-                <td style="padding:0 32px;">
-                  <hr style="border:none; border-top:1px solid #ece7d8; margin:0;" />
-                </td>
-              </tr>
-
-              <!-- Footer note -->
-              <tr>
-                <td style="padding:20px 32px 28px; text-align:center;">
-                  <p style="margin:0; color:#aaaaaa; font-size:11px; line-height:1.6;">
-                    If you didn't request this code, you can safely ignore this email.<br/>
-                    Never share this code with anyone, including Gona staff.
-                  </p>
-                </td>
-              </tr>
-
-            </table>
-
-            <p style="margin:20px 0 0; color:#a8a8a8; font-size:11px;">
-              &copy; ${new Date().getFullYear()} Gona. All rights reserved.
-            </p>
-          </td>
-        </tr>
-      </table>
-      `,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: "Gona", email: "piusdivine18@gmail.com" },
+        to: [{ email: toEmail }],
+        subject: "Your Gona OTP Code",
+        textContent: `Your one-time code is: ${otp}. It expires in 5 minutes.`,
+        htmlContent: `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3efe4; padding:40px 0; font-family:Arial, Helvetica, sans-serif;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="420" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+                <tr>
+                  <td style="background-color:#0d4a17; padding:28px 32px; text-align:center;">
+                    <h1 style="margin:0; color:#ffffff; font-size:22px; font-weight:700; letter-spacing:0.5px;">Gona</h1>
+                    <p style="margin:4px 0 0; color:#d7e9da; font-size:12px;">Smart Farm Management Platform</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:36px 32px 24px; text-align:center;">
+                    <p style="margin:0 0 8px; color:#171305; font-size:16px; font-weight:600;">Your verification code</p>
+                    <p style="margin:0 0 24px; color:#8b8b8b; font-size:13px;">Enter this code to continue signing in to your account.</p>
+                    <div style="display:inline-block; background-color:#f3efe4; border:1px solid #e6e0d3; border-radius:12px; padding:16px 32px; margin-bottom:24px;">
+                      <span style="font-size:32px; font-weight:700; letter-spacing:8px; color:#0d4a17;">${otp}</span>
+                    </div>
+                    <p style="margin:0; color:#8b8b8b; font-size:13px;">This code expires in <strong style="color:#171305;">5 minutes</strong>.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 32px;">
+                    <hr style="border:none; border-top:1px solid #ece7d8; margin:0;" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 32px 28px; text-align:center;">
+                    <p style="margin:0; color:#aaaaaa; font-size:11px; line-height:1.6;">
+                      If you didn't request this code, you can safely ignore this email.<br/>
+                      Never share this code with anyone, including Gona staff.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:20px 0 0; color:#a8a8a8; font-size:11px;">&copy; ${new Date().getFullYear()} Gona. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+        `,
+      }),
     });
-    console.log(`OTP email sent to ${toEmail}: ${info.response}`);
-    return info;
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`Failed to send OTP email to ${toEmail}:`, data);
+      throw new Error(data.message || "Brevo API error");
+    }
+
+    console.log(`OTP email sent to ${toEmail}:`, data.messageId);
+    return data;
   } catch (err) {
     console.error(`Failed to send OTP email to ${toEmail}:`, err);
     throw err;
