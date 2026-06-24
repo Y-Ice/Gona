@@ -78,7 +78,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ← NEW
+  const [loading, setLoading] = useState(false);
   const [otpStep, setOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
@@ -90,7 +90,7 @@ function LoginForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setLoading(true); // ← NEW
+    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
@@ -99,13 +99,13 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setLoading(false); // ← NEW
+        setLoading(false);
         return setError(data.message);
       }
-      setLoading(false); // ← NEW
+      setLoading(false);
       setOtpStep(true);
     } catch (err) {
-      setLoading(false); // ← NEW
+      setLoading(false);
       setError("Login failed. Make sure the server is running.");
     }
   }
@@ -127,6 +127,7 @@ function LoginForm() {
       }
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("userName", data.user.name); // 👈 added
       navigate("/admin");
     } catch (err) {
       setOtpLoading(false);
@@ -239,7 +240,6 @@ function LoginForm() {
               </span>
             </div>
 
-            {/* Sign In button with spinner */}
             <button
               type="submit"
               disabled={loading}

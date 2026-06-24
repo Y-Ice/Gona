@@ -3,19 +3,21 @@ import { useNavigate } from 'react-router-dom';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const handled = useRef(false); // ← guard against double run
+  const handled = useRef(false);
 
   useEffect(() => {
-    if (handled.current) return; // ← stop second run
+    if (handled.current) return;
     handled.current = true;
 
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
-    const user = params.get('user');
+    const userParam = params.get('user');
 
-    if (token && user) {
+    if (token && userParam) {
+      const user = JSON.parse(decodeURIComponent(userParam));
       localStorage.setItem('token', token);
-      localStorage.setItem('user', user);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('userName', user.name); // 👈 added
       navigate('/admin');
     } else {
       navigate('/login');

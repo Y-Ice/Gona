@@ -56,7 +56,7 @@ function RegisterForm() {
     password: "",
   });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ← NEW
+  const [loading, setLoading] = useState(false);
   const [otpStep, setOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
@@ -68,7 +68,7 @@ function RegisterForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setLoading(true); // ← NEW
+    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
@@ -81,13 +81,13 @@ function RegisterForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setLoading(false); // ← NEW
+        setLoading(false);
         return setError(data.message);
       }
-      setLoading(false); // ← NEW
+      setLoading(false);
       setOtpStep(true);
     } catch (err) {
-      setLoading(false); // ← NEW
+      setLoading(false);
       setError("Registration failed. Make sure the server is running.");
     }
   }
@@ -109,6 +109,7 @@ function RegisterForm() {
       }
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("userName", data.user.name); // 👈 added
       window.location.href = "/admin";
     } catch (err) {
       setOtpLoading(false);
@@ -197,7 +198,6 @@ function RegisterForm() {
             </span>
           </div>
 
-          {/* Create Account button with spinner */}
           <button
             type="submit"
             disabled={loading}
@@ -220,7 +220,6 @@ function RegisterForm() {
             <hr className="flex-1 border-gray-300" />
           </div>
 
-          {/* Google button — disabled while loading */}
           <button
             type="button"
             disabled={loading}

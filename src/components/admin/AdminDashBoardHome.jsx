@@ -21,6 +21,18 @@ const AdminDashBoardHome = () => {
   const [employees, setEmployees]   = useState([]);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [userInitials, setUserInitials] = useState(""); // 👈 added
+
+  useEffect(() => {
+    const name = localStorage.getItem("userName") || "";
+    if (name.trim()) {
+      const parts = name.trim().split(" ");
+      const initials = parts.length >= 2
+        ? parts[0][0] + parts[1][0]
+        : parts[0][0];
+      setUserInitials(initials.toUpperCase());
+    }
+  }, []);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -120,7 +132,10 @@ const AdminDashBoardHome = () => {
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
+          {/* 👇 updated avatar with initials */}
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+            {userInitials}
+          </div>
         </div>
       </div>
 
