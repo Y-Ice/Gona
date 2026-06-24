@@ -5,6 +5,7 @@ import Features from "../components/Features";
 import StatsStrip from "../components/StatsStrip";
 import HowItWorks from "../components/HowItWorks";
 import Testimonials from "../components/Testimonials";
+import InstallPWA from "../components/InstallPWA";
 import CTA from "../components/CTA";
 import Footer from "../components/Footer";
 
@@ -18,10 +19,11 @@ const LandingPage = () => {
       <StatsStrip />
       <HowItWorks />
       <Testimonials />
+      <InstallPWA />
       <CTA />
       <Footer />
     </div>
-    );
+  );
 };
 
 export default LandingPage;
