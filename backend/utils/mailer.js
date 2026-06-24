@@ -1,11 +1,19 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
+  },
+});
 
 async function sendOTP(toEmail, otp) {
   try {
-    const { data, error } = await resend.emails.send({
-      from: "Gona <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: `"Gona" <${process.env.BREVO_SMTP_USER}>`,
       to: toEmail,
       subject: "Your Gona OTP Code",
       text: `Your one-time code is: ${otp}. It expires in 5 minutes.`,
@@ -77,14 +85,8 @@ async function sendOTP(toEmail, otp) {
       </table>
       `,
     });
-
-    if (error) {
-      console.error(`Failed to send OTP email to ${toEmail}:`, error);
-      throw new Error(error.message);
-    }
-
-    console.log(`OTP email sent to ${toEmail}:`, data);
-    return data;
+    console.log(`OTP email sent to ${toEmail}: ${info.response}`);
+    return info;
   } catch (err) {
     console.error(`Failed to send OTP email to ${toEmail}:`, err);
     throw err;
