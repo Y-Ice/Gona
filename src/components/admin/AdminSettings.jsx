@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Languages, UserCog, Check } from "lucide-react";
 import { useLanguage, LANGUAGES } from "../../context/LanguageContext";
+import { useTranslatedText } from "../../hooks/useTranslatedText";
+
+function T({ text }) {
+  const translated = useTranslatedText(text);
+  return <>{translated}</>;
+}
 
 function LanguageTab() {
   const { selectedLanguage, setSelectedLanguage } = useLanguage();
@@ -9,12 +15,10 @@ function LanguageTab() {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
       <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-100">
         <Languages size={18} className="text-[#c47a0a]" />
-        <h3 className="text-lg font-semibold text-gray-800">🇳🇬 Language & Region</h3>
+        <h3 className="text-lg font-semibold text-gray-800">🇳🇬 <T text="Language & Region" /></h3>
       </div>
 
       <div className="px-6 py-6">
-        
-
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {Object.values(LANGUAGES).map((lang) => (
             <button
@@ -47,9 +51,9 @@ function LanguageTab() {
         <div className="flex items-start gap-2 bg-[#f0ece0] rounded-xl px-4 py-3">
           <Check size={16} className="text-[#c47a0a] mt-0.5 flex-shrink-0" />
           <p className="text-sm text-gray-600 font-sans">
-            Currently set to:{" "}
-            <span className="font-semibold text-gray-800">{selectedLanguage}</span>.
-            All farm data and labels will update to this language.
+            <T text="Currently set to" />:{" "}
+            <span className="font-semibold text-gray-800">{selectedLanguage}</span>.{" "}
+            <T text="All farm data and labels will update to this language." />
           </p>
         </div>
       </div>
@@ -58,50 +62,63 @@ function LanguageTab() {
 }
 
 function EditProfileTab() {
+  const stored = localStorage.getItem("user");
+  const user = stored ? JSON.parse(stored) : {};
+  const name = user.name || "";
+  const email = user.email || "";
+
+  const initials = (() => {
+    if (!name.trim()) return "AU";
+    const parts = name.trim().split(" ");
+    return parts.length >= 2
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : parts[0][0].toUpperCase();
+  })();
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
       <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-100">
         <UserCog size={18} className="text-[#c47a0a]" />
-        <h3 className="text-lg font-semibold text-gray-800">Edit Profile</h3>
+        <h3 className="text-lg font-semibold text-gray-800"><T text="Edit Profile" /></h3>
       </div>
 
       <div className="px-6 py-6">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-14 h-14 rounded-full bg-[#c47a0a] flex items-center justify-center text-white text-lg font-semibold font-sans flex-shrink-0">
-            AU
+            {initials}
           </div>
           <div>
-            <p className="text-base font-semibold text-gray-800">Admin User</p>
-            <p className="text-sm text-gray-500 font-sans">admin@farm.com</p>
+            <p className="text-base font-semibold text-gray-800">{name || "Admin User"}</p>
+            <p className="text-sm text-gray-500 font-sans">{email || "—"}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-6">
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              Full Name
+              <T text="Full Name" />
             </label>
             <input
               type="text"
-              defaultValue="Admin User"
+              defaultValue={name}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
             />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              Email
+              <T text="Email" />
             </label>
             <input
               type="email"
-              defaultValue="admin@farm.com"
+              defaultValue={email}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
             />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              Phone
+              <T text="Phone" />
             </label>
             <input
               type="text"
@@ -112,7 +129,7 @@ function EditProfileTab() {
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              New Password (Optional)
+              <T text="New Password (Optional)" />
             </label>
             <input
               type="password"
@@ -124,7 +141,7 @@ function EditProfileTab() {
 
         <button className="flex items-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c]">
           <Check size={16} />
-          Save Changes
+          <T text="Save Changes" />
         </button>
       </div>
     </div>
@@ -141,7 +158,9 @@ const AdminSettings = () => {
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif p-4 sm:p-6">
-      <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6">Settings</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6">
+        <T text="Settings" />
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 h-fit">
@@ -156,7 +175,7 @@ const AdminSettings = () => {
                 }`}
             >
               {tab.icon}
-              {tab.label}
+              <T text={tab.label} />
             </button>
           ))}
         </div>

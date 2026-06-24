@@ -13,6 +13,15 @@ function T({ text }) {
   return <>{translated}</>;
 }
 
+function getUserInitials() {
+  const name = localStorage.getItem("userName") || "";
+  if (!name.trim()) return "";
+  const parts = name.trim().split(" ");
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : parts[0][0].toUpperCase();
+}
+
 function FarmModal({ onClose, onSave, existingFarm }) {
   const isEditing = !!existingFarm;
   const [form, setForm] = useState({
@@ -218,6 +227,7 @@ const AdminFarm = () => {
   const [editingFarm, setEditingFarm] = useState(null);
   const [farms, setFarms] = useState([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
+  const userInitials = getUserInitials(); // 👈 added
 
   useEffect(() => {
     const fetchFarms = async () => {
@@ -281,7 +291,10 @@ const AdminFarm = () => {
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-full bg-[#f5a623] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
+          {/* 👇 updated avatar with initials */}
+          <div className="w-10 h-10 rounded-full bg-[#f5a623] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+            {userInitials}
+          </div>
         </div>
       </div>
 

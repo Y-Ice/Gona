@@ -13,6 +13,15 @@ function T({ text }) {
   return <>{translated}</>;
 }
 
+function getUserInitials() {
+  const name = localStorage.getItem("userName") || "";
+  if (!name.trim()) return "";
+  const parts = name.trim().split(" ");
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : parts[0][0].toUpperCase();
+}
+
 function CropModal({ onClose, onSave, farms, existingCrop }) {
   const isEditing = !!existingCrop;
   const [form, setForm] = useState({
@@ -160,6 +169,7 @@ const AdminCrops = () => {
   const [crops, setCrops]               = useState([]);
   const [farms, setFarms]               = useState([]);
   const [loadingCrops, setLoadingCrops] = useState(true);
+  const userInitials = getUserInitials(); // 👈 added
 
   useEffect(() => {
     const fetchData = async () => {
@@ -231,7 +241,10 @@ const AdminCrops = () => {
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
+          {/* 👇 updated avatar with initials */}
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+            {userInitials}
+          </div>
         </div>
       </div>
 
