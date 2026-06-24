@@ -34,7 +34,7 @@ const Navbar = () => {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
-          {["Features", "Pricing", "About"].map((link) => (
+          {["Features", "Pricing", "Reviews"].map((link) => (
             <a
               key={link}
               href={`#${link.toLowerCase()}`}
@@ -87,7 +87,7 @@ const Navbar = () => {
             className="bg-cream/70 absolute top-full left-0 right-0 backdrop-blur-2xl border-b border-soil/8
           flex flex-col px-6 py-4 gap-4 animate-slideDown md:hidden"
           >
-            {["Features", "Pricing", "About"].map((link) => (
+            {["Features", "Pricing", "Reviews"].map((link) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}

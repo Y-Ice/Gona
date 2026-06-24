@@ -30,7 +30,7 @@ const AdminSideBar = ({ setSidebarOpen }) => {
 
   return (
     <aside className="flex flex-col h-screen w-64 bg-green-900">
-      <div className="flex items-center gap-2 px-6 py-2">
+      <div className="flex items-center gap-2 px-2 py-2">
         <div className="w-15 h-15 rounded-lg flex items-center justify-center flex-shrink-0">
           <img
             src="/images/logo3.png"

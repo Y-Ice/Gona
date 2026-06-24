@@ -6,7 +6,7 @@ const CTA = () => {
     <div>
       <section
         id="cta"
-        className="bg-orange-100 px-6 md:px-16 py-24 text-center"
+        className="bg-green-900 px-6 md:px-16 py-24 text-center text-white"
       >
         <div className="text-[0.75rem] tracking-[0.15em] uppercase text-harvest font-medium mb-3">
           Get Started Today

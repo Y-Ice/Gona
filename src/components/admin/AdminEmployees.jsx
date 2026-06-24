@@ -220,13 +220,10 @@ const AdminEmployees = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800"><T text="Employee Management" /></h1>
+        <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
+          <T text="Employee Management" />
+        </h1>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 sm:flex-none sm:w-64">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search employees..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-          </div>
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
               <Settings size={18} />
@@ -236,14 +233,22 @@ const AdminEmployees = () => {
         </div>
       </div>
 
+      <div className="mb-6 border-b border-gray-500 pb-4"></div>
+
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-1"><T text="Team Directory" /></h2>
-            <p className="text-sm text-gray-500 font-sans"><T text="Manage workforce allocation across all farm sectors." /></p>
+            <h2 className="text-xl font-semibold text-gray-800 mb-1">
+              <T text="Team Directory" />
+            </h2>
+            <p className="text-sm text-gray-500 font-sans">
+              <T text="Manage workforce allocation across all farm sectors." />
+            </p>
           </div>
-          <button onClick={() => setShowModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0">
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0"
+          >
             <UserPlus size={18} />
             <T text="Add Employee" />
           </button>
@@ -260,15 +265,24 @@ const AdminEmployees = () => {
             </div>
           ) : (
             employees.map((emp) => (
-              <div key={emp._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <div
+                key={emp._id}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5"
+              >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 rounded-full bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
                     {getInitials(emp.name)}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-base font-semibold text-gray-800 truncate">{emp.name}</h3>
+                    <h3 className="text-base font-semibold text-gray-800 truncate">
+                      {emp.name}
+                    </h3>
                     <p className="text-sm text-gray-500 font-sans italic truncate">
-                      {emp.role ? <T text={emp.role} /> : <T text="No role set" />}
+                      {emp.role ? (
+                        <T text={emp.role} />
+                      ) : (
+                        <T text="No role set" />
+                      )}
                     </p>
                   </div>
                 </div>
@@ -285,7 +299,10 @@ const AdminEmployees = () => {
                     </div>
                   )}
                   <div className="flex items-center gap-2 text-sm text-gray-600 font-sans">
-                    <Building2 size={15} className="text-gray-400 flex-shrink-0" />
+                    <Building2
+                      size={15}
+                      className="text-gray-400 flex-shrink-0"
+                    />
                     {getFarmName(emp.farmId)}
                   </div>
                 </div>
@@ -293,16 +310,22 @@ const AdminEmployees = () => {
                 <hr className="border-gray-100 mb-4" />
 
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs font-sans font-semibold px-3 py-1.5 rounded-full ${statusColor(emp.status)}`}>
+                  <span
+                    className={`text-xs font-sans font-semibold px-3 py-1.5 rounded-full ${statusColor(emp.status)}`}
+                  >
                     <T text={emp.status} />
                   </span>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => handleEdit(emp)}
-                      className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                    <button
+                      onClick={() => handleEdit(emp)}
+                      className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+                    >
                       <Pencil size={14} />
                     </button>
-                    <button onClick={() => handleDelete(emp._id)}
-                      className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100">
+                    <button
+                      onClick={() => handleDelete(emp._id)}
+                      className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100"
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>

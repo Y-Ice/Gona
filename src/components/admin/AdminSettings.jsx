@@ -61,96 +61,10 @@ function LanguageTab() {
   );
 }
 
-function EditProfileTab() {
-  const stored = localStorage.getItem("user");
-  const user = stored ? JSON.parse(stored) : {};
-  const name = user.name || "";
-  const email = user.email || "";
 
-  const initials = (() => {
-    if (!name.trim()) return "AU";
-    const parts = name.trim().split(" ");
-    return parts.length >= 2
-      ? (parts[0][0] + parts[1][0]).toUpperCase()
-      : parts[0][0].toUpperCase();
-  })();
-
-  return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-      <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-100">
-        <UserCog size={18} className="text-[#c47a0a]" />
-        <h3 className="text-lg font-semibold text-gray-800"><T text="Edit Profile" /></h3>
-      </div>
-
-      <div className="px-6 py-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 rounded-full bg-[#c47a0a] flex items-center justify-center text-white text-lg font-semibold font-sans flex-shrink-0">
-            {initials}
-          </div>
-          <div>
-            <p className="text-base font-semibold text-gray-800">{name || "Admin User"}</p>
-            <p className="text-sm text-gray-500 font-sans">{email || "—"}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-6">
-          <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              <T text="Full Name" />
-            </label>
-            <input
-              type="text"
-              defaultValue={name}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              <T text="Email" />
-            </label>
-            <input
-              type="email"
-              defaultValue={email}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              <T text="Phone" />
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 08012345678"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              <T text="New Password (Optional)" />
-            </label>
-            <input
-              type="password"
-              placeholder="Leave blank to keep current"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            />
-          </div>
-        </div>
-
-        <button className="flex items-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c]">
-          <Check size={16} />
-          <T text="Save Changes" />
-        </button>
-      </div>
-    </div>
-  );
-}
 
 const tabs = [
   { id: "language", label: "Language", icon: <Languages size={18} /> },
-  { id: "profile", label: "Edit Profile", icon: <UserCog size={18} /> },
 ];
 
 const AdminSettings = () => {
@@ -158,9 +72,11 @@ const AdminSettings = () => {
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif p-4 sm:p-6">
-      <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6">
+      <h1 className="text-xl sm:text-3xl text-gray-700 mb-6 font-sans font-bold tracking-tight">
         <T text="Settings" />
       </h1>
+
+      <div className="mb-6 border-b border-gray-500 pb-4"></div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 h-fit">
@@ -169,9 +85,10 @@ const AdminSettings = () => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all mb-1
-                ${activeTab === tab.id
-                  ? "bg-[#fdefd0] text-[#c47a0a]"
-                  : "text-gray-600 hover:bg-gray-50"
+                ${
+                  activeTab === tab.id
+                    ? "bg-[#fdefd0] text-[#c47a0a]"
+                    : "text-gray-600 hover:bg-gray-50"
                 }`}
             >
               {tab.icon}
@@ -180,10 +97,7 @@ const AdminSettings = () => {
           ))}
         </div>
 
-        <div>
-          {activeTab === "language" && <LanguageTab />}
-          {activeTab === "profile" && <EditProfileTab />}
-        </div>
+        <div>{activeTab === "language" && <LanguageTab />}</div>
       </div>
     </div>
   );

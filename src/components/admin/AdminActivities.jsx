@@ -266,13 +266,10 @@ const AdminActivities = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800"><T text="Daily Activity Logs" /></h1>
+        <h1 className="text-xl sm:text-3xl font-sans font-bold tracking-tight text-gray-700">
+          <T text="Daily Activity Logs" />
+        </h1>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 sm:flex-none sm:w-64">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search activities..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-          </div>
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
               <Settings size={18} />
@@ -282,11 +279,17 @@ const AdminActivities = () => {
         </div>
       </div>
 
+      <div className="mb-6 border-b border-gray-500 pb-4"></div>
+
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800"><T text="Activity Records" /></h2>
-          <button onClick={() => setShowModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0">
+          <h2 className="text-xl font-semibold text-gray-800">
+            <T text="Activity Records" />
+          </h2>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0"
+          >
             <Plus size={18} />
             <T text="Log Activity" />
           </button>
@@ -294,8 +297,19 @@ const AdminActivities = () => {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="hidden lg:grid grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.8fr] gap-4 px-6 py-3 bg-[#f7f4ee] border-b border-gray-100">
-            {["Date", "Farm", "Type", "Description", "Employee", "Inputs", "Actions"].map((h) => (
-              <span key={h} className={`text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase ${h === "Actions" ? "text-right" : ""}`}>
+            {[
+              "Date",
+              "Farm",
+              "Type",
+              "Description",
+              "Employee",
+              "Inputs",
+              "Actions",
+            ].map((h) => (
+              <span
+                key={h}
+                className={`text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase ${h === "Actions" ? "text-right" : ""}`}
+              >
                 <T text={h} />
               </span>
             ))}
@@ -311,41 +325,63 @@ const AdminActivities = () => {
             </div>
           ) : (
             activities.map((act, i) => (
-              <div key={act._id}
+              <div
+                key={act._id}
                 className={`grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr_2fr_1.2fr_1.2fr_0.8fr] gap-2 lg:gap-4 px-6 py-4 lg:items-center
-                  ${i !== activities.length - 1 ? "border-b border-gray-100" : ""}`}>
+                  ${i !== activities.length - 1 ? "border-b border-gray-100" : ""}`}
+              >
                 <span className="text-sm font-sans text-gray-700">
-                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2"><T text="Date" />:</span>
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    <T text="Date" />:
+                  </span>
                   {act.date ? new Date(act.date).toLocaleDateString() : "—"}
                 </span>
                 <span className="text-sm font-sans text-gray-700">
-                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2"><T text="Farm" />:</span>
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    <T text="Farm" />:
+                  </span>
                   {getFarmName(act.farmId)}
                 </span>
                 <div>
-                  <span className={`text-xs font-sans font-semibold px-3 py-1 rounded-full ${typeColor(act.type)}`}>
+                  <span
+                    className={`text-xs font-sans font-semibold px-3 py-1 rounded-full ${typeColor(act.type)}`}
+                  >
                     <T text={act.type} />
                   </span>
                 </div>
                 <span className="text-sm font-sans text-gray-700">
-                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2 block"><T text="Description" />:</span>
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2 block">
+                    <T text="Description" />:
+                  </span>
                   {act.description ? <T text={act.description} /> : "—"}
                 </span>
                 <span className="text-sm font-sans text-gray-700">
-                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2"><T text="Employee" />:</span>
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    <T text="Employee" />:
+                  </span>
                   {getEmpName(act.employeeId)}
                 </span>
                 <span className="text-sm font-sans text-gray-700">
-                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2"><T text="Inputs" />:</span>
-                  {act.inputs?.length > 0
-                    ? `${act.inputs[0].name} (${act.inputs[0].qty} ${act.inputs[0].unit})`
-                    : <T text="None" />}
+                  <span className="lg:hidden text-xs text-gray-400 font-semibold uppercase mr-2">
+                    <T text="Inputs" />:
+                  </span>
+                  {act.inputs?.length > 0 ? (
+                    `${act.inputs[0].name} (${act.inputs[0].qty} ${act.inputs[0].unit})`
+                  ) : (
+                    <T text="None" />
+                  )}
                 </span>
                 <div className="lg:text-right flex lg:justify-end items-center gap-3 text-gray-400">
-                  <button onClick={() => handleEdit(act)} className="hover:text-gray-600">
+                  <button
+                    onClick={() => handleEdit(act)}
+                    className="hover:text-gray-600"
+                  >
                     <Pencil size={15} />
                   </button>
-                  <button onClick={() => handleDelete(act._id)} className="hover:text-red-500">
+                  <button
+                    onClick={() => handleDelete(act._id)}
+                    className="hover:text-red-500"
+                  >
                     <Trash2 size={16} />
                   </button>
                 </div>

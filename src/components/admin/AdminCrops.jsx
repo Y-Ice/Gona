@@ -119,7 +119,7 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              <T text="Expected Yield (kg)" />
+              <T text="Expected Yield" />
             </label>
             <input name="expectedYield" value={form.expectedYield} onChange={handleChange} type="number" placeholder="500"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
@@ -227,34 +227,33 @@ const AdminCrops = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+        <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
           <T text="Crop Management" />
         </h1>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 sm:flex-none sm:w-64">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search heritage seeds..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-          </div>
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
               <Settings size={18} />
             </button>
           </Link>
-          {/* 👇 updated avatar with initials */}
+          {/* updated avatar with initials */}
           <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
             {userInitials}
           </div>
         </div>
       </div>
 
+      <div className="mb-6 border-b border-gray-500 pb-4"></div>
+
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <p className="text-sm text-gray-500 font-sans">
-            <T text="Monitoring and tracking heritage crop cycles." />
+            <T text="Monitoring and tracking farm crop cycles." />
           </p>
-          <button onClick={() => setShowModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0">
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto flex-shrink-0"
+          >
             <Plus size={18} />
             <T text="Add New Crop" />
           </button>
@@ -268,8 +267,18 @@ const AdminCrops = () => {
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1.5fr_1.2fr_1fr_0.8fr] gap-4 px-6 py-3 border-b border-gray-100">
-            {["Crop", "Farm", "Plant Date", "Status", "Yield (kg)", "Actions"].map((col) => (
-              <span key={col} className={`text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase ${col === "Actions" ? "text-right" : ""}`}>
+            {[
+              "Crop",
+              "Farm",
+              "Plant Date",
+              "Status",
+              "Yield (kg)",
+              "Actions",
+            ].map((col) => (
+              <span
+                key={col}
+                className={`text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase ${col === "Actions" ? "text-right" : ""}`}
+              >
                 <T text={col} />
               </span>
             ))}
@@ -285,9 +294,11 @@ const AdminCrops = () => {
             </div>
           ) : (
             crops.map((crop, i) => (
-              <div key={crop._id}
+              <div
+                key={crop._id}
                 className={`grid grid-cols-1 lg:grid-cols-[2fr_1.5fr_1.5fr_1.2fr_1fr_0.8fr] gap-3 lg:gap-4 px-6 py-5 lg:items-center
-                  ${i !== crops.length - 1 ? "border-b border-gray-100" : ""}`}>
+                  ${i !== crops.length - 1 ? "border-b border-gray-100" : ""}`}
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-[#f0ece0] flex items-center justify-center text-lg flex-shrink-0">
                     🌱
@@ -303,11 +314,15 @@ const AdminCrops = () => {
                 </div>
 
                 <div className="text-sm text-gray-600 font-sans">
-                  {crop.plantDate ? new Date(crop.plantDate).toLocaleDateString() : "—"}
+                  {crop.plantDate
+                    ? new Date(crop.plantDate).toLocaleDateString()
+                    : "—"}
                 </div>
 
                 <div>
-                  <span className={`text-xs font-sans font-semibold px-3 py-1.5 rounded-full ${statusColor(crop.status)}`}>
+                  <span
+                    className={`text-xs font-sans font-semibold px-3 py-1.5 rounded-full ${statusColor(crop.status)}`}
+                  >
                     <T text={crop.status} />
                   </span>
                 </div>
@@ -317,8 +332,18 @@ const AdminCrops = () => {
                 </div>
 
                 <div className="lg:text-right flex lg:justify-end items-center gap-3 text-gray-400">
-                  <button onClick={() => handleEdit(crop)} className="hover:text-gray-600"><Pencil size={15} /></button>
-                  <button onClick={() => handleDelete(crop._id)} className="hover:text-red-500"><Trash2 size={15} /></button>
+                  <button
+                    onClick={() => handleEdit(crop)}
+                    className="hover:text-gray-600"
+                  >
+                    <Pencil size={15} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(crop._id)}
+                    className="hover:text-red-500"
+                  >
+                    <Trash2 size={15} />
+                  </button>
                 </div>
               </div>
             ))

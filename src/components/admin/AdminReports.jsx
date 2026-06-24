@@ -227,13 +227,10 @@ const AdminReports = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800"><T text="Reports & Analytics" /></h1>
+        <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
+          <T text="Reports & Analytics" />
+        </h1>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 sm:flex-none sm:w-64">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search reports..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-          </div>
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
               <Settings size={18} />
@@ -243,34 +240,73 @@ const AdminReports = () => {
         </div>
       </div>
 
-      <div className="p-4 sm:p-6 flex flex-col gap-6">
+      <div className="mb-6 border-b border-gray-500 pb-4"></div>
 
+      <div className="p-4 sm:p-6 flex flex-col gap-6">
         {/* Export Button */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
           <div>
-            <h3 className="text-sm font-semibold text-gray-800"><T text="Export Report" /></h3>
-            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Download your full farm data as a PDF report" /></p>
+            <h3 className="text-sm font-semibold text-gray-800">
+              <T text="Export Report" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mt-0.5">
+              <T text="Download your full farm data as a PDF report" />
+            </p>
           </div>
-          <button onClick={exportPDF} disabled={exporting}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a2f] text-white text-sm font-sans font-medium hover:bg-[#2a4f3f] disabled:opacity-50 transition-colors">
+          <button
+            onClick={exportPDF}
+            disabled={exporting}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a2f] text-white text-sm font-sans font-medium hover:bg-[#2a4f3f] disabled:opacity-50 transition-colors"
+          >
             <FileText size={16} />
-            {exporting ? <T text="Generating PDF..." /> : <T text="Download PDF Report" />}
+            {exporting ? (
+              <T text="Generating PDF..." />
+            ) : (
+              <T text="Download PDF Report" />
+            )}
           </button>
         </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Active Farms",     value: activeFarms,  icon: <Mountain size={20} className="text-[#7a6a50]" />, bg: "bg-[#f0e8da]" },
-            { label: "Total Crops",      value: crops.length, icon: <Leaf size={20} className="text-[#3a8a5a]" />,    bg: "bg-[#d8f0e0]" },
-            { label: "Active Staff",     value: activeEmps,   icon: <User size={20} className="text-[#8a8a8a]" />,    bg: "bg-[#e8e8e8]" },
-            { label: "Total Yield (kg)", value: totalYield,   icon: <BarChart2 size={20} className="text-[#c47a0a]" />, bg: "bg-[#fdefd0]" },
+            {
+              label: "Active Farms",
+              value: activeFarms,
+              icon: <Mountain size={20} className="text-[#7a6a50]" />,
+              bg: "bg-[#f0e8da]",
+            },
+            {
+              label: "Total Crops",
+              value: crops.length,
+              icon: <Leaf size={20} className="text-[#3a8a5a]" />,
+              bg: "bg-[#d8f0e0]",
+            },
+            {
+              label: "Active Staff",
+              value: activeEmps,
+              icon: <User size={20} className="text-[#8a8a8a]" />,
+              bg: "bg-[#e8e8e8]",
+            },
+            {
+              label: "Total Yield (kg)",
+              value: totalYield,
+              icon: <BarChart2 size={20} className="text-[#c47a0a]" />,
+              bg: "bg-[#fdefd0]",
+            },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.bg}`}>
+            <div
+              key={s.label}
+              className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"
+            >
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.bg}`}
+              >
                 {s.icon}
               </div>
-              <p className="text-xs text-gray-400 font-sans uppercase tracking-wide mb-1"><T text={s.label} /></p>
+              <p className="text-xs text-gray-400 font-sans uppercase tracking-wide mb-1">
+                <T text={s.label} />
+              </p>
               <p className="text-2xl font-semibold text-gray-800">{s.value}</p>
             </div>
           ))}
@@ -279,33 +315,62 @@ const AdminReports = () => {
         {/* Charts Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Activity Trend" /></h3>
-            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Activities logged over the last 6 months" /></p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
+              <T text="Activity Trend" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mb-5">
+              <T text="Activities logged over the last 6 months" />
+            </p>
             {activities.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No activity data yet" /></div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">
+                <T text="No activity data yet" />
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={monthlyData()}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0ece0" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12, fontFamily: "sans-serif" }}
+                  />
                   <YAxis tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="count" stroke="#1e3a2f" strokeWidth={2} dot={{ fill: "#c47a0a" }} />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#1e3a2f"
+                    strokeWidth={2}
+                    dot={{ fill: "#c47a0a" }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             )}
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Crop Status Breakdown" /></h3>
-            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Distribution of crop lifecycle stages" /></p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
+              <T text="Crop Status Breakdown" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mb-5">
+              <T text="Distribution of crop lifecycle stages" />
+            </p>
             {cropStatusData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No crop data yet" /></div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">
+                <T text="No crop data yet" />
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie data={cropStatusData} cx="50%" cy="50%" outerRadius={80}
-                    dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  <Pie
+                    data={cropStatusData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    dataKey="value"
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
                     {cropStatusData.map((_, i) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
@@ -320,15 +385,24 @@ const AdminReports = () => {
         {/* Charts Row 2 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Yield Per Farm" /></h3>
-            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Total yield (kg) across all farms" /></p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
+              <T text="Yield Per Farm" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mb-5">
+              <T text="Total yield (kg) across all farms" />
+            </p>
             {yieldPerFarm.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No farm data yet" /></div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">
+                <T text="No farm data yet" />
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={yieldPerFarm}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0ece0" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 12, fontFamily: "sans-serif" }}
+                  />
                   <YAxis tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
                   <Tooltip />
                   <Bar dataKey="yield" fill="#1e3a2f" radius={[6, 6, 0, 0]} />
@@ -338,16 +412,30 @@ const AdminReports = () => {
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Activity Breakdown" /></h3>
-            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Types of activities logged across all farms" /></p>
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
+              <T text="Activity Breakdown" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mb-5">
+              <T text="Types of activities logged across all farms" />
+            </p>
             {activityData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No activity data yet" /></div>
+              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans">
+                <T text="No activity data yet" />
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={activityData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0ece0" />
-                  <XAxis type="number" tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontFamily: "sans-serif" }} width={90} />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 12, fontFamily: "sans-serif" }}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 11, fontFamily: "sans-serif" }}
+                    width={90}
+                  />
                   <Tooltip />
                   <Bar dataKey="value" fill="#c47a0a" radius={[0, 6, 6, 0]} />
                 </BarChart>
@@ -359,46 +447,81 @@ const AdminReports = () => {
         {/* Farm Performance Summary */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-6 py-5 bg-[#f0ece0]">
-            <h3 className="text-base font-semibold text-gray-800"><T text="Farm Performance Summary" /></h3>
-            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Overview of each farm's output and activity" /></p>
+            <h3 className="text-base font-semibold text-gray-800">
+              <T text="Farm Performance Summary" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mt-0.5">
+              <T text="Overview of each farm's output and activity" />
+            </p>
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-6 py-3 border-b border-gray-100">
-            {["Farm", "Status", "Crops", "Employees", "Activities", "Success Rate"].map((h) => (
-              <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
+            {[
+              "Farm",
+              "Status",
+              "Crops",
+              "Employees",
+              "Activities",
+              "Success Rate",
+            ].map((h) => (
+              <span
+                key={h}
+                className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase"
+              >
                 <T text={h} />
               </span>
             ))}
           </div>
 
           {farmPerformance.length === 0 ? (
-            <div className="p-8 text-center text-gray-400 font-sans text-sm"><T text="No farms registered yet." /></div>
+            <div className="p-8 text-center text-gray-400 font-sans text-sm">
+              <T text="No farms registered yet." />
+            </div>
           ) : (
             farmPerformance.map((farm, i) => (
-              <div key={farm._id}
+              <div
+                key={farm._id}
                 className={`grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-3 lg:gap-4 px-6 py-4 lg:items-center
-                  ${i !== farmPerformance.length - 1 ? "border-b border-gray-100" : ""}`}>
+                  ${i !== farmPerformance.length - 1 ? "border-b border-gray-100" : ""}`}
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-[#f0e8da] flex items-center justify-center flex-shrink-0">
                     <Building2 size={16} className="text-[#7a6a50]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-800">{farm.name}</p>
-                    <p className="text-xs text-gray-400 font-sans">{farm.location || "—"}</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {farm.name}
+                    </p>
+                    <p className="text-xs text-gray-400 font-sans">
+                      {farm.location || "—"}
+                    </p>
                   </div>
                 </div>
-                <span className={`text-xs font-sans font-semibold px-2.5 py-1 rounded-full w-fit
-                  ${farm.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                <span
+                  className={`text-xs font-sans font-semibold px-2.5 py-1 rounded-full w-fit
+                  ${farm.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                >
                   <T text={farm.status} />
                 </span>
-                <span className="text-sm font-sans text-gray-700">{farm.cropCount} <T text="crops" /></span>
-                <span className="text-sm font-sans text-gray-700">{farm.employeeCount} <T text="staff" /></span>
-                <span className="text-sm font-sans text-gray-700">{farm.activityCount} <T text="logs" /></span>
+                <span className="text-sm font-sans text-gray-700">
+                  {farm.cropCount} <T text="crops" />
+                </span>
+                <span className="text-sm font-sans text-gray-700">
+                  {farm.employeeCount} <T text="staff" />
+                </span>
+                <span className="text-sm font-sans text-gray-700">
+                  {farm.activityCount} <T text="logs" />
+                </span>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#1e3a2f] rounded-full" style={{ width: `${farm.successRate}%` }} />
+                    <div
+                      className="h-full bg-[#1e3a2f] rounded-full"
+                      style={{ width: `${farm.successRate}%` }}
+                    />
                   </div>
-                  <span className="text-xs font-sans font-semibold text-gray-700 w-8">{farm.successRate}%</span>
+                  <span className="text-xs font-sans font-semibold text-gray-700 w-8">
+                    {farm.successRate}%
+                  </span>
                 </div>
               </div>
             ))
@@ -408,38 +531,65 @@ const AdminReports = () => {
         {/* Crop Details Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-6 py-5 bg-[#f0ece0]">
-            <h3 className="text-base font-semibold text-gray-800"><T text="Crop Yield Details" /></h3>
-            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Expected vs actual yield for all crops" /></p>
+            <h3 className="text-base font-semibold text-gray-800">
+              <T text="Crop Yield Details" />
+            </h3>
+            <p className="text-xs text-gray-400 font-sans mt-0.5">
+              <T text="Expected vs actual yield for all crops" />
+            </p>
           </div>
 
           <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-4 px-6 py-3 border-b border-gray-100">
-            {["Crop", "Farm", "Expected (kg)", "Actual (kg)", "Status"].map((h) => (
-              <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase">
-                <T text={h} />
-              </span>
-            ))}
+            {["Crop", "Farm", "Expected (kg)", "Actual (kg)", "Status"].map(
+              (h) => (
+                <span
+                  key={h}
+                  className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase"
+                >
+                  <T text={h} />
+                </span>
+              ),
+            )}
           </div>
 
           {crops.length === 0 ? (
-            <div className="p-8 text-center text-gray-400 font-sans text-sm"><T text="No crops added yet." /></div>
+            <div className="p-8 text-center text-gray-400 font-sans text-sm">
+              <T text="No crops added yet." />
+            </div>
           ) : (
             crops.map((crop, i) => {
               const farm = farms.find((f) => f._id === crop.farmId);
               return (
-                <div key={crop._id}
+                <div
+                  key={crop._id}
                   className={`grid grid-cols-1 lg:grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-3 lg:gap-4 px-6 py-4 lg:items-center
-                    ${i !== crops.length - 1 ? "border-b border-gray-100" : ""}`}>
+                    ${i !== crops.length - 1 ? "border-b border-gray-100" : ""}`}
+                >
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🌱</span>
-                    <p className="text-sm font-semibold text-gray-800"><T text={crop.name} /></p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      <T text={crop.name} />
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600 font-sans">{farm?.name || "—"}</p>
-                  <p className="text-sm text-gray-700 font-sans">{crop.expectedYield || "—"}</p>
-                  <p className="text-sm text-gray-700 font-sans">{crop.actualYield || "—"}</p>
-                  <span className={`text-xs font-sans font-semibold px-2.5 py-1 rounded-full w-fit
-                    ${crop.status === "Growing"   ? "bg-green-100 text-green-700"  :
-                      crop.status === "Harvested" ? "bg-blue-100 text-blue-700"   :
-                      "bg-red-100 text-red-600"}`}>
+                  <p className="text-sm text-gray-600 font-sans">
+                    {farm?.name || "—"}
+                  </p>
+                  <p className="text-sm text-gray-700 font-sans">
+                    {crop.expectedYield || "—"}
+                  </p>
+                  <p className="text-sm text-gray-700 font-sans">
+                    {crop.actualYield || "—"}
+                  </p>
+                  <span
+                    className={`text-xs font-sans font-semibold px-2.5 py-1 rounded-full w-fit
+                    ${
+                      crop.status === "Growing"
+                        ? "bg-green-100 text-green-700"
+                        : crop.status === "Harvested"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-red-100 text-red-600"
+                    }`}
+                  >
                     <T text={crop.status} />
                   </span>
                 </div>
@@ -447,7 +597,6 @@ const AdminReports = () => {
             })
           )}
         </div>
-
       </div>
     </div>
   );

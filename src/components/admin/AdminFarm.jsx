@@ -227,7 +227,7 @@ const AdminFarm = () => {
   const [editingFarm, setEditingFarm] = useState(null);
   const [farms, setFarms] = useState([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
-  const userInitials = getUserInitials(); // 👈 added
+  const userInitials = getUserInitials(); 
 
   useEffect(() => {
     const fetchFarms = async () => {
@@ -281,9 +281,9 @@ const AdminFarm = () => {
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 pb-0">
         <div className="relative w-full sm:max-w-md">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search estates, assets..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+          <h2 className="text-3xl font-bold text-gray-700 font-sans tracking-tight">
+            <T text="Farm Overview" />
+          </h2>
         </div>
         <div className="flex items-center gap-3 self-end sm:self-auto sm:ml-4">
           <Link to="/admin/settings">
@@ -291,25 +291,26 @@ const AdminFarm = () => {
               <Settings size={18} />
             </button>
           </Link>
-          {/* 👇 updated avatar with initials */}
-          <div className="w-10 h-10 rounded-full bg-[#f5a623] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+          {/*  updated avatar with initials */}
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
             {userInitials}
           </div>
         </div>
       </div>
 
+      <div className="mb-6 border-b border-gray-500 pb-4"></div>
+
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <p className="text-xs font-sans font-semibold text-[#c47a0a] tracking-widest uppercase mb-1">
-              <T text="Heritage Estate" />
-            </p>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 ">
               <T text="Farm Management" />
             </h1>
           </div>
-          <button onClick={() => setShowModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto">
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 bg-[#1e1a14] text-white text-sm font-sans font-medium px-5 py-3 rounded-xl hover:bg-[#2a241c] w-full sm:w-auto"
+          >
             <Plus size={18} />
             <T text="Register New Farm" />
           </button>
@@ -326,15 +327,26 @@ const AdminFarm = () => {
             </div>
           ) : (
             farms.map((farm) => (
-              <div key={farm._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div
+                key={farm._id}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+              >
                 <div className="p-5">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <h3 className="text-lg font-semibold text-gray-800 truncate">{farm.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 truncate">
+                      {farm.name}
+                    </h3>
                     <div className="flex items-center gap-3 text-gray-400 flex-shrink-0">
-                      <button onClick={() => handleEdit(farm)} className="hover:text-gray-600">
+                      <button
+                        onClick={() => handleEdit(farm)}
+                        className="hover:text-gray-600"
+                      >
                         <Pencil size={16} />
                       </button>
-                      <button onClick={() => handleDelete(farm._id)} className="hover:text-red-500">
+                      <button
+                        onClick={() => handleDelete(farm._id)}
+                        className="hover:text-red-500"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -348,18 +360,26 @@ const AdminFarm = () => {
                       <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
                         <T text="Farm Size" />
                       </p>
-                      <p className="text-sm font-semibold text-gray-800">{farm.size} {farm.unit}</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {farm.size} {farm.unit}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400 font-sans tracking-wide uppercase mb-1">
                         <T text="Specialization" />
                       </p>
                       <p className="text-sm font-semibold text-gray-800">
-                        {farm.specialization ? <T text={farm.specialization} /> : "—"}
+                        {farm.specialization ? (
+                          <T text={farm.specialization} />
+                        ) : (
+                          "—"
+                        )}
                       </p>
                     </div>
                   </div>
-                  <span className={`text-xs font-sans font-medium px-3 py-1 rounded-full ${farm.status === "Active" ? "bg-[#1e3a2f] text-white" : "bg-gray-500 text-white"}`}>
+                  <span
+                    className={`text-xs font-sans font-medium px-3 py-1 rounded-full ${farm.status === "Active" ? "bg-[#1e3a2f] text-white" : "bg-gray-500 text-white"}`}
+                  >
                     <T text={farm.status} />
                   </span>
                 </div>

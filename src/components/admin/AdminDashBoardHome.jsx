@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  Mountain, Leaf, User, BarChart2, Building2,
+  Tractor, Leaf, User, BarChart2, Building2,
   MoreVertical, Plus, Settings, Search,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -67,28 +67,24 @@ const AdminDashBoardHome = () => {
     {
       label: "Total Farms",
       value: loading ? "..." : farms.length,
-      change: "+0%", positive: true,
-      icon: <Mountain size={22} className="text-[#7a6a50]" />,
+      icon: <Tractor size={22} className="text-[#7a6a50]" />,
       iconBg: "bg-[#f0e8da]",
     },
     {
       label: "Total Crops",
       value: loading ? "..." : crops.length,
-      change: "+0%", positive: true,
       icon: <Leaf size={22} className="text-[#3a8a5a]" />,
       iconBg: "bg-[#d8f0e0]",
     },
     {
       label: "Employees",
       value: loading ? "..." : employees.length,
-      change: "+0%", positive: true,
       icon: <User size={22} className="text-[#8a8a8a]" />,
       iconBg: "bg-[#e8e8e8]",
     },
     {
       label: "Total Yield (kg)",
       value: loading ? "..." : totalYield,
-      change: "+0%", positive: true,
       icon: <BarChart2 size={22} className="text-[#c47a0a]" />,
       iconBg: "bg-[#fdefd0]",
     },
@@ -122,17 +118,12 @@ const AdminDashBoardHome = () => {
           <T text="Dashboard Overview" />
         </h2>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 sm:flex-none sm:w-64">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Search Employees..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-sans text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-          </div>
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
               <Settings size={18} />
             </button>
           </Link>
-          {/* 👇 updated avatar with initials */}
+          {/* updated avatar with initials */}
           <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
             {userInitials}
           </div>
@@ -151,10 +142,6 @@ const AdminDashBoardHome = () => {
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.iconBg}`}>
                   {stat.icon}
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full font-sans
-                  ${stat.positive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-                  {stat.change}
-                </span>
               </div>
               <p className="text-sm text-gray-500 font-sans mb-1">
                 <T text={stat.label} />
