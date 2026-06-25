@@ -49,6 +49,7 @@ app.use('/api/farms',      farmRoutes);
 app.use('/api/crops',      cropRoutes);
 app.use('/api/employees',  employeeRoutes);
 app.use('/api/activities', activityRoutes);
+app.use("/api/ai", require("./routes/ai"));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

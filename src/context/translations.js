@@ -50,6 +50,8 @@ export const dictionary = {
     ig: "Profaịlụ",
   },
 
+
+
   // ─── Stats ────────────────────────────────────────────────────
   "Total Farms": {
     ha: "Jimlar Gonakin",
@@ -364,6 +366,7 @@ export const dictionary = {
     ig: "Kwụsị",
   },
 
+ 
 
 
 "Reports & Analytics": { ha: "Rahotanni & Nazarin", yo: "Àwọn Ìròyìn & Ìtúpalẹ̀", ig: "Akụkọ & Nyocha" },
@@ -392,7 +395,16 @@ export const dictionary = {
 "No crops added yet.": { ha: "Babu amfanin gona da aka ƙara tukuna.", yo: "Ko si irugbin tí a fi kun sibẹsibẹ.", ig: "Enweghị ọjị etinyere." },
 "No farms registered yet.": { ha: "Babu gonaki da aka yi rajista tukuna.", yo: "Ko si oko tí a forukọsilẹ sibẹsibẹ.", ig: "Enweghị ubi edebanyere aha." },
 "Loading reports...": { ha: "Ana loda rahotanni...", yo: "Ń gba àwọn ìròyìn wọle...", ig: "Na-ebunye akụkọ..." },
-
+"AI Farm Analysis": { ha: "Nazarin Gona na AI", yo: "Ìtúpalẹ̀ Oko AI", ig: "Nyocha Ubi AI" },
+"Generate an intelligent report from your farm data": { ha: "Ƙirƙiri rahoto mai hankali daga bayanan gonarku", yo: "Ṣẹda ìròyìn ọlọgbọn lati data oko rẹ", ig: "Mepụta akụkọ nke ọcha site na data ubi gị" },
+"Generate AI Report": { ha: "Ƙirƙiri Rahoto na AI", yo: "Ṣẹda Ìròyìn AI", ig: "Mepụta Akụkọ AI" },
+"Export Report": { ha: "Fitar da Rahoto", yo: "Gbé Ìròyìn Jáde", ig: "Bupu Akụkọ" },
+"Download full farm data + AI analysis as PDF": { ha: "Zazzage cikakkun bayanan gona + nazarin AI a matsayin PDF", yo: "Gba data oko kikun + ìtúpalẹ̀ AI bi PDF", ig: "Budata data ubi ọzọ + nyocha AI dị ka PDF" },
+"Download PDF": { ha: "Zazzage PDF", yo: "Gba PDF", ig: "Budata PDF" },
+"Analyzing...": { ha: "Ana nazari...", yo: "Ń ṣe ìtúpalẹ̀...", ig: "Na-nyocha..." },
+"Generating PDF...": { ha: "Ana ƙirƙirar PDF...", yo: "Ń ṣẹda PDF...", ig: "Na-emepụta PDF..." },
+"AI Generated Analysis": { ha: "Nazarin da AI Ya Ƙirƙira", yo: "Ìtúpalẹ̀ Tí AI Ṣẹda", ig: "Nyocha Nke AI Mepụtara" },
+"Analyzing your farm data...": { ha: "Ana nazarin bayanan gonarku...", yo: "Ń ṣe ìtúpalẹ̀ data oko rẹ...", ig: "Na-nyocha data ubi gị..." },
 
 "Daily Activity Logs": { ha: "Rahotannin Ayyuka na Yau da Kullum", yo: "Àwọn Ìgbasilẹ Iṣẹ Ojoojúmọ́", ig: "Ndekọ Ọrụ Kwa Ụbọchị" },
 "Activity Records": { ha: "Bayanan Ayyuka", yo: "Àwọn Àkọsílẹ Iṣẹ", ig: "Ndekọ Ọrụ" },
