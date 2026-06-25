@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Settings, BarChart2, Leaf,
-  User, Mountain, Building2, FileText, Sparkles,
+  User, Mountain, Building2, FileText, Sparkles, Volume2, VolumeX,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -39,6 +39,15 @@ const LANGUAGE_OPTIONS = [
   { value: "igbo",    label: "Igbo" },
 ];
 
+const VOICE_OPTIONS = [
+  { value: "Tayo",     label: "Tayo" },
+  { value: "Idera",    label: "Idera" },
+  { value: "Femi",     label: "Femi" },
+  { value: "Chinenye", label: "Chinenye" },
+  { value: "Jude",     label: "Jude" },
+  { value: "Zainab",   label: "Zainab" },
+];
+
 const AdminReports = () => {
   const [farms, setFarms]           = useState([]);
   const [crops, setCrops]           = useState([]);
@@ -49,6 +58,10 @@ const AdminReports = () => {
   const [aiLoading, setAiLoading]   = useState(false);
   const [aiReport, setAiReport]     = useState("");
   const [language, setLanguage]     = useState("english");
+  const [ttsLoading, setTtsLoading] = useState(false);
+  const [ttsPlaying, setTtsPlaying] = useState(false);
+  const [voice, setVoice]           = useState("Tayo");
+  const audioRef                    = useRef(null);
   const userInitials = getUserInitials();
 
   useEffect(() => {
@@ -131,7 +144,6 @@ const AdminReports = () => {
     return { ...farm, cropCount: farmCrops.length, activityCount: farmActivities.length, employeeCount: farmEmployees.length, totalYield: farmYield, successRate };
   });
 
-  // ── BUILD PROMPT ─────────────────────────────────────────────────────────
   const buildPrompt = () => `You are an expert agricultural analyst for Gona, a smart farm management platform in Nigeria.
 
 Based on the following farm data, generate a professional, detailed farm performance report. Be specific, insightful, and practical.
@@ -163,7 +175,6 @@ Generate a report with these sections:
 
 Keep each section concise but insightful. Use specific numbers from the data.`;
 
-  // ── AI REPORT GENERATOR ──────────────────────────────────────────────────
   const generateAIReport = async () => {
     setAiLoading(true);
     setAiReport("");
@@ -187,13 +198,53 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
     }
   };
 
-  // ── PDF EXPORT ───────────────────────────────────────────────────────────
+  // ── TEXT TO SPEECH ───────────────────────────────────────────────────────
+  const handleReadReport = async () => {
+    if (!aiReport) return;
+
+    // If already playing, stop it
+    if (ttsPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setTtsPlaying(false);
+      return;
+    }
+
+    setTtsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/tts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ text: aiReport.slice(0, 2000), voice }),
+      });
+
+      if (!response.ok) throw new Error("TTS failed");
+
+      const blob = await response.blob();
+      const url  = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.play();
+      setTtsPlaying(true);
+      audio.onended = () => {
+        setTtsPlaying(false);
+        URL.revokeObjectURL(url);
+      };
+    } catch (err) {
+      console.error("TTS error:", err);
+      alert("Failed to read report. Please try again.");
+    } finally {
+      setTtsLoading(false);
+    }
+  };
+
   const exportPDF = async () => {
     setExporting(true);
     try {
       let reportText = aiReport;
-
-      // Auto-generate AI report if not done yet
       if (!reportText) {
         setAiLoading(true);
         try {
@@ -217,8 +268,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
 
       const doc = new jsPDF();
       const date = new Date().toLocaleDateString();
-
-      // Header
       doc.setFillColor(30, 58, 47);
       doc.rect(0, 0, 210, 28, "F");
       doc.setTextColor(255, 255, 255);
@@ -228,8 +277,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.text(`Generated: ${date}`, 150, 17);
-
-      // Summary stats
       doc.setTextColor(30, 58, 47);
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
@@ -245,10 +292,7 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         `Activities Logged: ${activities.length}`,
       ];
       stats.forEach((s, i) => doc.text(s, 14 + (i % 3) * 65, 46 + Math.floor(i / 3) * 7));
-
       let yPos = 62;
-
-      // AI Report section in PDF
       if (reportText) {
         doc.setFillColor(240, 236, 224);
         doc.rect(12, yPos - 4, 186, 8, "F");
@@ -268,8 +312,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         });
         yPos += 6;
       }
-
-      // Farm Performance table
       autoTable(doc, {
         startY: yPos,
         head: [["Farm", "Status", "Crops", "Staff", "Activities", "Success Rate"]],
@@ -279,8 +321,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         alternateRowStyles: { fillColor: [247, 244, 238] },
         margin: { left: 14, right: 14 },
       });
-
-      // Crops table
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
         head: [["Crop", "Farm", "Expected (kg)", "Actual (kg)", "Status"]],
@@ -290,8 +330,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         alternateRowStyles: { fillColor: [247, 244, 238] },
         margin: { left: 14, right: 14 },
       });
-
-      // Employees table
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
         head: [["Name", "Role", "Farm", "Phone", "Status"]],
@@ -301,8 +339,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         alternateRowStyles: { fillColor: [247, 244, 238] },
         margin: { left: 14, right: 14 },
       });
-
-      // Activities table
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
         head: [["Date", "Farm", "Type", "Employee", "Description"]],
@@ -316,8 +352,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         alternateRowStyles: { fillColor: [247, 244, 238] },
         margin: { left: 14, right: 14 },
       });
-
-      // Footer
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -325,7 +359,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         doc.setTextColor(150, 150, 150);
         doc.text(`Gona Farm Management  •  Page ${i} of ${pageCount}`, 14, 290);
       }
-
       doc.save(`Gona_Report_${new Date().toISOString().split("T")[0]}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
@@ -366,39 +399,75 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#1e3a2f] rounded-2xl px-6 py-4 shadow-sm">
-            <div>
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Sparkles size={16} className="text-[#f5a623]" />
-                <T text="AI Farm Analysis" />
-              </h3>
-              <p className="text-xs text-white/60 font-sans mt-0.5">
-                <T text="Generate an intelligent report from your farm data" />
-              </p>
+
+          {/* AI Report Card */}
+          <div className="flex-1 flex flex-col gap-4 bg-[#1e3a2f] rounded-2xl px-6 py-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Sparkles size={16} className="text-[#f5a623]" />
+                  <T text="AI Farm Analysis" />
+                </h3>
+                <p className="text-xs text-white/60 font-sans mt-0.5">
+                  <T text="Generate an intelligent report from your farm data" />
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  disabled={aiLoading}
+                  className="text-sm font-sans rounded-lg px-3 py-2.5 bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#f5a623] disabled:opacity-50"
+                >
+                  {LANGUAGE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className="text-gray-800">{opt.label}</option>
+                  ))}
+                </select>
+                <button onClick={generateAIReport} disabled={aiLoading}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#f5a623] text-white text-sm font-sans font-medium hover:bg-[#d4840a] disabled:opacity-50 transition-colors flex-shrink-0">
+                  <Sparkles size={16} />
+                  {aiLoading ? <T text="Analyzing..." /> : <T text="Generate AI Report" />}
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                disabled={aiLoading}
-                className="text-sm font-sans rounded-lg px-3 py-2.5 bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#f5a623] disabled:opacity-50"
-              >
-                {LANGUAGE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="text-gray-800">
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-
-              <button onClick={generateAIReport} disabled={aiLoading}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#f5a623] text-white text-sm font-sans font-medium hover:bg-[#d4840a] disabled:opacity-50 transition-colors flex-shrink-0">
-                <Sparkles size={16} />
-                {aiLoading ? <T text="Analyzing..." /> : <T text="Generate AI Report" />}
-              </button>
-            </div>
+            {/* Read Report Row */}
+            {aiReport && (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-3 border-t border-white/10">
+                <div className="flex items-center gap-2 flex-1">
+                  <Volume2 size={15} className="text-white/60 flex-shrink-0" />
+                  <p className="text-xs text-white/60 font-sans"><T text="Listen to your report using a Nigerian AI voice" /></p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                  <select
+                    value={voice}
+                    onChange={(e) => setVoice(e.target.value)}
+                    disabled={ttsLoading}
+                    className="text-sm font-sans rounded-lg px-3 py-2 bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#f5a623] disabled:opacity-50"
+                  >
+                    {VOICE_OPTIONS.map((v) => (
+                      <option key={v.value} value={v.value} className="text-gray-800">{v.label}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleReadReport}
+                    disabled={ttsLoading}
+                    className="flex items-center gap-2 px-5 py-2 rounded-lg bg-white/15 text-white text-sm font-sans font-medium hover:bg-white/25 disabled:opacity-50 transition-colors flex-shrink-0 border border-white/20"
+                  >
+                    {ttsLoading ? (
+                      <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> <T text="Loading..." /></>
+                    ) : ttsPlaying ? (
+                      <><VolumeX size={16} /> <T text="Stop" /></>
+                    ) : (
+                      <><Volume2 size={16} /> <T text="Read Report" /></>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
+          {/* Export Card */}
           <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
             <div>
               <h3 className="text-sm font-semibold text-gray-800"><T text="Export Report" /></h3>

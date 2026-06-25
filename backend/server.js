@@ -50,6 +50,7 @@ app.use('/api/crops',      cropRoutes);
 app.use('/api/employees',  employeeRoutes);
 app.use('/api/activities', activityRoutes);
 app.use("/api/ai", require("./routes/ai"));
+app.use("/api/tts", require("./routes/tts"));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
