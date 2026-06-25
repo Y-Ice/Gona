@@ -124,7 +124,9 @@ export default function PricingSection() {
     <>
       {/* Email Modal */}
       {modal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+        >
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
             <button
               onClick={closeModal}
@@ -165,7 +167,7 @@ export default function PricingSection() {
         </div>
       )}
 
-      <section className="bg-slate-50 py-20 px-6">
+      <section id="pricing" className="bg-slate-50 py-20 px-6">
         <div className="max-w-4xl mx-auto text-center mb-12">
           <p className="text-sm font-semibold tracking-wide uppercase text-amber-600 mb-2">
             Pricing
