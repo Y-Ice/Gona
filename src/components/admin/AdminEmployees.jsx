@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import {
-  Search, Settings, UserPlus, Phone, Building2,
-  Pencil, Trash2, X, Check, Mail,
+  Search,
+  Settings,
+  UserPlus,
+  Phone,
+  Building2,
+  Pencil,
+  Trash2,
+  X,
+  Check,
+  Mail,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+const getToken = () =>
+  localStorage.getItem("token") || localStorage.getItem("fb_token");
 
 function T({ text }) {
   const translated = useTranslatedText(text);
@@ -27,14 +36,20 @@ function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
-    if (!form.name) { setError("Employee name is required."); return; }
+    if (!form.name) {
+      setError("Employee name is required.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
-      const url = isEditing ? `${API_URL}/api/employees/${existingEmployee._id}` : `${API_URL}/api/employees`;
+      const url = isEditing
+        ? `${API_URL}/api/employees/${existingEmployee._id}`
+        : `${API_URL}/api/employees`;
       const method = isEditing ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
@@ -62,7 +77,10 @@ function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
           <h2 className="text-xl font-semibold text-gray-800">
             <T text={isEditing ? "Edit Employee" : "Add Employee"} />
           </h2>
-          <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50"
+          >
             <X size={18} />
           </button>
         </div>
@@ -72,45 +90,75 @@ function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Full Name" />
             </label>
-            <input name="name" value={form.name} onChange={handleChange} type="text" placeholder="Employee full name"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              type="text"
+              placeholder="Employee full name"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Role" />
             </label>
-            <input name="role" value={form.role} onChange={handleChange} type="text" placeholder="e.g. Field Worker, Supervisor"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              type="text"
+              placeholder="e.g. Field Worker, Supervisor"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Phone" />
             </label>
-            <input name="phone" value={form.phone} onChange={handleChange} type="text" placeholder="08012345678"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              type="text"
+              placeholder="08012345678"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Email" />
             </label>
-            <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="employee@email.com"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              type="email"
+              placeholder="employee@email.com"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Farm" />
             </label>
-            <select name="farmId" value={form.farmId} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="farmId"
+              value={form.farmId}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               {farms.length === 0 ? (
                 <option value="">No farms available</option>
               ) : (
                 farms.map((f) => (
-                  <option key={f._id} value={f._id}>{f.name}</option>
+                  <option key={f._id} value={f._id}>
+                    {f.name}
+                  </option>
                 ))
               )}
             </select>
@@ -120,8 +168,12 @@ function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Status" />
             </label>
-            <select name="status" value={form.status} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               <option>Active</option>
               <option>On Leave</option>
               <option>Inactive</option>
@@ -129,17 +181,30 @@ function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
           </div>
         </div>
 
-        {error && <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>}
+        {error && (
+          <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>
+        )}
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose}
-            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
             <T text="Cancel" />
           </button>
-          <button onClick={handleSave} disabled={loading}
-            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50"
+          >
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
+            {loading ? (
+              <T text="Saving..." />
+            ) : isEditing ? (
+              <T text="Update" />
+            ) : (
+              <T text="Save" />
+            )}
           </button>
         </div>
       </div>
@@ -148,32 +213,55 @@ function EmployeeModal({ onClose, onSave, farms, existingEmployee }) {
 }
 
 const statusColor = (status) => {
-  if (status === "Active")   return "bg-green-100 text-green-700";
+  if (status === "Active") return "bg-green-100 text-green-700";
   if (status === "On Leave") return "bg-yellow-100 text-yellow-700";
   if (status === "Inactive") return "bg-gray-100 text-gray-500";
   return "bg-gray-100 text-gray-500";
 };
 
 const getInitials = (name) =>
-  name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "??";
+  name
+    ? name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "??";
 
 const AdminEmployees = () => {
-  const [showModal, setShowModal]           = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [employees, setEmployees]           = useState([]);
-  const [farms, setFarms]                   = useState([]);
-  const [loadingEmps, setLoadingEmps]       = useState(true);
+  const [employees, setEmployees] = useState([]);
+  const [farms, setFarms] = useState([]);
+  const [loadingEmps, setLoadingEmps] = useState(true);
+  const [userInitials, setUserInitials] = useState("");
+
+  // Pull logged-in user's initials from localStorage
+  useEffect(() => {
+    const name = localStorage.getItem("userName") || "";
+    if (name.trim()) {
+      const parts = name.trim().split(" ");
+      const initials =
+        parts.length >= 2 ? parts[0][0] + parts[1][0] : parts[0][0];
+      setUserInitials(initials.toUpperCase());
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [empRes, farmRes] = await Promise.all([
-          fetch(`${API_URL}/api/employees`, { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/farms`,     { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/employees`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/farms`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
         ]);
-        const empData  = await empRes.json();
+        const empData = await empRes.json();
         const farmData = await farmRes.json();
-        if (Array.isArray(empData))  setEmployees(empData);
+        if (Array.isArray(empData)) setEmployees(empData);
         if (Array.isArray(farmData)) setFarms(farmData);
       } catch (err) {
         console.error("Failed to fetch data:", err);
@@ -186,7 +274,7 @@ const AdminEmployees = () => {
 
   const handleSave = (emp, isEditing) => {
     if (isEditing) {
-      setEmployees((prev) => prev.map((e) => e._id === emp._id ? emp : e));
+      setEmployees((prev) => prev.map((e) => (e._id === emp._id ? emp : e)));
     } else {
       setEmployees((prev) => [...prev, emp]);
     }
@@ -215,12 +303,13 @@ const AdminEmployees = () => {
     setEditingEmployee(null);
   };
 
-  const getFarmName = (farmId) => farms.find((f) => f._id === farmId)?.name || "No Farm";
+  const getFarmName = (farmId) =>
+    farms.find((f) => f._id === farmId)?.name || "No Farm";
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
+      <div className="flex flex-row items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
+        <h1 className="text-base sm:text-3xl text-gray-700 font-sans font-bold tracking-tight truncate">
           <T text="Employee Management" />
         </h1>
         <div className="flex items-center gap-3">
@@ -229,7 +318,9 @@ const AdminEmployees = () => {
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+            {userInitials}
+          </div>
         </div>
       </div>
 

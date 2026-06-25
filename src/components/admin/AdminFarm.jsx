@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import {
-  Search, Settings, Plus, Pencil, Trash2, MapPin, X, Check,
+  Search,
+  Settings,
+  Plus,
+  Pencil,
+  Trash2,
+  MapPin,
+  X,
+  Check,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+const getToken = () =>
+  localStorage.getItem("token") || localStorage.getItem("fb_token");
 
 function T({ text }) {
   const translated = useTranslatedText(text);
@@ -38,7 +46,8 @@ function FarmModal({ onClose, onSave, existingFarm }) {
   const [locating, setLocating] = useState(false);
   const [locSuccess, setLocSuccess] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
@@ -52,7 +61,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
         const { latitude, longitude } = pos.coords;
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
           );
           const data = await res.json();
           const address = data.display_name || `${latitude}, ${longitude}`;
@@ -75,12 +84,15 @@ function FarmModal({ onClose, onSave, existingFarm }) {
       () => {
         setError("Couldn't get location. Please enter it manually.");
         setLocating(false);
-      }
+      },
     );
   };
 
   const handleSave = async () => {
-    if (!form.name) { setError("Farm name is required."); return; }
+    if (!form.name) {
+      setError("Farm name is required.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -115,7 +127,10 @@ function FarmModal({ onClose, onSave, existingFarm }) {
           <h2 className="text-xl font-semibold text-gray-800">
             <T text={isEditing ? "Edit Farm" : "Add New Farm"} />
           </h2>
-          <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50"
+          >
             <X size={18} />
           </button>
         </div>
@@ -125,8 +140,14 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Farm Name" />
             </label>
-            <input name="name" value={form.name} onChange={handleChange} type="text" placeholder="e.g. Green Valley Farm"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              type="text"
+              placeholder="e.g. Green Valley Farm"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
@@ -144,19 +165,27 @@ function FarmModal({ onClose, onSave, existingFarm }) {
               }`}
             >
               <MapPin size={15} />
-              {locating
-                ? <T text="Getting location..." />
-                : locSuccess
-                ? <T text="Location detected!" />
-                : <T text="Use My Current Location" />}
+              {locating ? (
+                <T text="Getting location..." />
+              ) : locSuccess ? (
+                <T text="Location detected!" />
+              ) : (
+                <T text="Use My Current Location" />
+              )}
             </button>
-            <p className="text-xs text-gray-400 font-sans text-center mb-2">— or enter manually —</p>
+            <p className="text-xs text-gray-400 font-sans text-center mb-2">
+              — or enter manually —
+            </p>
             <input
               name="location"
               value={form.location}
               onChange={(e) => {
                 setLocSuccess(false);
-                setForm({ ...form, location: e.target.value, coordinates: null });
+                setForm({
+                  ...form,
+                  location: e.target.value,
+                  coordinates: null,
+                });
               }}
               type="text"
               placeholder="e.g. Ogun State, Nigeria"
@@ -168,16 +197,26 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Size" />
             </label>
-            <input name="size" value={form.size} onChange={handleChange} type="number" placeholder="50"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="size"
+              value={form.size}
+              onChange={handleChange}
+              type="number"
+              placeholder="50"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Unit" />
             </label>
-            <select name="unit" value={form.unit} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="unit"
+              value={form.unit}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               <option>hectares</option>
               <option>acres</option>
             </select>
@@ -187,16 +226,26 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Specialization" />
             </label>
-            <input name="specialization" value={form.specialization} onChange={handleChange} type="text" placeholder="e.g. Maize & Cassava"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="specialization"
+              value={form.specialization}
+              onChange={handleChange}
+              type="text"
+              placeholder="e.g. Maize & Cassava"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div className="sm:col-span-2">
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Status" />
             </label>
-            <select name="status" value={form.status} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               <option>Active</option>
               <option>Inactive</option>
               <option>Dormant</option>
@@ -204,17 +253,30 @@ function FarmModal({ onClose, onSave, existingFarm }) {
           </div>
         </div>
 
-        {error && <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>}
+        {error && (
+          <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>
+        )}
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose}
-            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
             <T text="Cancel" />
           </button>
-          <button onClick={handleSave} disabled={loading}
-            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50"
+          >
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
+            {loading ? (
+              <T text="Saving..." />
+            ) : isEditing ? (
+              <T text="Update" />
+            ) : (
+              <T text="Save" />
+            )}
           </button>
         </div>
       </div>
@@ -227,7 +289,7 @@ const AdminFarm = () => {
   const [editingFarm, setEditingFarm] = useState(null);
   const [farms, setFarms] = useState([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
-  const userInitials = getUserInitials(); 
+  const userInitials = getUserInitials();
 
   useEffect(() => {
     const fetchFarms = async () => {
@@ -248,7 +310,7 @@ const AdminFarm = () => {
 
   const handleSave = (farm, isEditing) => {
     if (isEditing) {
-      setFarms((prev) => prev.map((f) => f._id === farm._id ? farm : f));
+      setFarms((prev) => prev.map((f) => (f._id === farm._id ? farm : f)));
     } else {
       setFarms((prev) => [...prev, farm]);
     }
@@ -279,13 +341,11 @@ const AdminFarm = () => {
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 pb-0">
-        <div className="relative w-full sm:max-w-md">
-          <h2 className="text-3xl font-bold text-gray-700 font-sans tracking-tight">
-            <T text="Farm Overview" />
-          </h2>
-        </div>
-        <div className="flex items-center gap-3 self-end sm:self-auto sm:ml-4">
+      <div className="flex flex-row items-center justify-between gap-3 p-4 sm:p-6 pb-0">
+        <h2 className="text-xl sm:text-3xl font-bold text-gray-700 font-sans tracking-tight truncate">
+          <T text="Farm Overview" />
+        </h2>
+        <div className="flex items-center gap-3 flex-shrink-0">
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
               <Settings size={18} />

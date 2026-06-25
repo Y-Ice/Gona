@@ -1,43 +1,63 @@
 import { useState, useEffect } from "react";
-import {
-  Search, Settings, Plus, Trash2, X, Check, Pencil,
-} from "lucide-react";
+import { Settings, Plus, Trash2, X, Check, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+const getToken = () =>
+  localStorage.getItem("token") || localStorage.getItem("fb_token");
 
 function T({ text }) {
   const translated = useTranslatedText(text);
   return <>{translated}</>;
 }
 
-function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) {
+function ActivityModal({
+  onClose,
+  onSave,
+  farms,
+  employees,
+  existingActivity,
+}) {
   const isEditing = !!existingActivity;
   const [form, setForm] = useState({
-    farmId:      existingActivity?.farmId      || farms[0]?._id || "",
-    employeeId:  existingActivity?.employeeId  || employees[0]?._id || "",
-    date:        existingActivity?.date        ? existingActivity.date.slice(0, 10) : new Date().toISOString().split("T")[0],
-    type:        existingActivity?.type        || "Planting",
+    farmId: existingActivity?.farmId || farms[0]?._id || "",
+    employeeId: existingActivity?.employeeId || employees[0]?._id || "",
+    date: existingActivity?.date
+      ? existingActivity.date.slice(0, 10)
+      : new Date().toISOString().split("T")[0],
+    type: existingActivity?.type || "Planting",
     description: existingActivity?.description || "",
-    inputName:   existingActivity?.inputs?.[0]?.name  || "",
-    inputQty:    existingActivity?.inputs?.[0]?.qty   || "",
-    inputUnit:   existingActivity?.inputs?.[0]?.unit  || "",
+    inputName: existingActivity?.inputs?.[0]?.name || "",
+    inputQty: existingActivity?.inputs?.[0]?.qty || "",
+    inputUnit: existingActivity?.inputs?.[0]?.unit || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
-    if (!form.description) { setError("Description is required."); return; }
-    if (!form.farmId) { setError("Please select a farm."); return; }
+    if (!form.description) {
+      setError("Description is required.");
+      return;
+    }
+    if (!form.farmId) {
+      setError("Please select a farm.");
+      return;
+    }
     setLoading(true);
     setError("");
 
     const inputs = form.inputName
-      ? [{ name: form.inputName, qty: Number(form.inputQty), unit: form.inputUnit }]
+      ? [
+          {
+            name: form.inputName,
+            qty: Number(form.inputQty),
+            unit: form.inputUnit,
+          },
+        ]
       : [];
 
     try {
@@ -53,10 +73,10 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
           Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
-          farmId:      form.farmId,
-          employeeId:  form.employeeId,
-          date:        form.date,
-          type:        form.type,
+          farmId: form.farmId,
+          employeeId: form.employeeId,
+          date: form.date,
+          type: form.type,
           description: form.description,
           inputs,
         }),
@@ -79,7 +99,10 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
           <h2 className="text-xl font-semibold text-gray-800">
             <T text={isEditing ? "Edit Activity" : "Log Activity"} />
           </h2>
-          <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50"
+          >
             <X size={18} />
           </button>
         </div>
@@ -89,16 +112,25 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Date" />
             </label>
-            <input name="date" value={form.date} onChange={handleChange} type="date"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="date"
+              value={form.date}
+              onChange={handleChange}
+              type="date"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Activity Type" />
             </label>
-            <select name="type" value={form.type} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="type"
+              value={form.type}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               <option>Planting</option>
               <option>Fertilizing</option>
               <option>Weeding</option>
@@ -114,12 +146,20 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Farm" />
             </label>
-            <select name="farmId" value={form.farmId} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="farmId"
+              value={form.farmId}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               {farms.length === 0 ? (
                 <option value="">No farms available</option>
               ) : (
-                farms.map((f) => <option key={f._id} value={f._id}>{f.name}</option>)
+                farms.map((f) => (
+                  <option key={f._id} value={f._id}>
+                    {f.name}
+                  </option>
+                ))
               )}
             </select>
           </div>
@@ -128,12 +168,20 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Employee" />
             </label>
-            <select name="employeeId" value={form.employeeId} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="employeeId"
+              value={form.employeeId}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               {employees.length === 0 ? (
                 <option value="">No employees available</option>
               ) : (
-                employees.map((e) => <option key={e._id} value={e._id}>{e.name}</option>)
+                employees.map((e) => (
+                  <option key={e._id} value={e._id}>
+                    {e.name}
+                  </option>
+                ))
               )}
             </select>
           </div>
@@ -142,41 +190,76 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Description" />
             </label>
-            <textarea name="description" value={form.description} onChange={handleChange}
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
               placeholder="Describe the activity carried out..."
               rows={3}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 resize-none" />
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 resize-none"
+            />
           </div>
 
           <div className="sm:col-span-2">
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
-              <T text="Input Used" /> <span className="text-gray-400 font-normal normal-case">(<T text="optional" />)</span>
+              <T text="Input Used" />{" "}
+              <span className="text-gray-400 font-normal normal-case">
+                (<T text="optional" />)
+              </span>
             </label>
             <div className="grid grid-cols-3 gap-3">
-              <input name="inputName" value={form.inputName} onChange={handleChange}
-                type="text" placeholder="e.g. NPK Fertilizer"
-                className="col-span-1 px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-              <input name="inputQty" value={form.inputQty} onChange={handleChange}
-                type="number" placeholder="Qty"
-                className="px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
-              <input name="inputUnit" value={form.inputUnit} onChange={handleChange}
-                type="text" placeholder="Unit (kg, L)"
-                className="px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+              <input
+                name="inputName"
+                value={form.inputName}
+                onChange={handleChange}
+                type="text"
+                placeholder="e.g. NPK Fertilizer"
+                className="col-span-1 px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+              />
+              <input
+                name="inputQty"
+                value={form.inputQty}
+                onChange={handleChange}
+                type="number"
+                placeholder="Qty"
+                className="px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+              />
+              <input
+                name="inputUnit"
+                value={form.inputUnit}
+                onChange={handleChange}
+                type="text"
+                placeholder="Unit (kg, L)"
+                className="px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+              />
             </div>
           </div>
         </div>
 
-        {error && <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>}
+        {error && (
+          <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>
+        )}
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose}
-            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
             <T text="Cancel" />
           </button>
-          <button onClick={handleSave} disabled={loading}
-            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50"
+          >
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
+            {loading ? (
+              <T text="Saving..." />
+            ) : isEditing ? (
+              <T text="Update" />
+            ) : (
+              <T text="Save" />
+            )}
           </button>
         </div>
       </div>
@@ -186,40 +269,57 @@ function ActivityModal({ onClose, onSave, farms, employees, existingActivity }) 
 
 const typeColor = (type) => {
   const map = {
-    Planting:       "bg-green-100 text-green-700",
-    Fertilizing:    "bg-yellow-100 text-yellow-700",
-    Weeding:        "bg-orange-100 text-orange-700",
-    Irrigation:     "bg-blue-100 text-blue-700",
+    Planting: "bg-green-100 text-green-700",
+    Fertilizing: "bg-yellow-100 text-yellow-700",
+    Weeding: "bg-orange-100 text-orange-700",
+    Irrigation: "bg-blue-100 text-blue-700",
     "Pest Control": "bg-red-100 text-red-700",
-    Feeding:        "bg-purple-100 text-purple-700",
-    Harvesting:     "bg-emerald-100 text-emerald-700",
-    Other:          "bg-gray-100 text-gray-600",
+    Feeding: "bg-purple-100 text-purple-700",
+    Harvesting: "bg-emerald-100 text-emerald-700",
+    Other: "bg-gray-100 text-gray-600",
   };
   return map[type] || "bg-gray-100 text-gray-600";
 };
 
 const AdminActivities = () => {
-  const [showModal, setShowModal]           = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
-  const [activities, setActivities]         = useState([]);
-  const [farms, setFarms]                   = useState([]);
-  const [employees, setEmployees]           = useState([]);
-  const [loadingActivities, setLoading]     = useState(true);
+  const [activities, setActivities] = useState([]);
+  const [farms, setFarms] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [loadingActivities, setLoading] = useState(true);
+  const [userInitials, setUserInitials] = useState("");
+
+  useEffect(() => {
+    const name = localStorage.getItem("userName") || "";
+    if (name.trim()) {
+      const parts = name.trim().split(" ");
+      const initials =
+        parts.length >= 2 ? parts[0][0] + parts[1][0] : parts[0][0];
+      setUserInitials(initials.toUpperCase());
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [actRes, farmRes, empRes] = await Promise.all([
-          fetch(`${API_URL}/api/activities`, { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/farms`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/employees`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/activities`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/farms`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/employees`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
         ]);
-        const actData  = await actRes.json();
+        const actData = await actRes.json();
         const farmData = await farmRes.json();
-        const empData  = await empRes.json();
-        if (Array.isArray(actData))  setActivities(actData);
+        const empData = await empRes.json();
+        if (Array.isArray(actData)) setActivities(actData);
         if (Array.isArray(farmData)) setFarms(farmData);
-        if (Array.isArray(empData))  setEmployees(empData);
+        if (Array.isArray(empData)) setEmployees(empData);
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
@@ -231,7 +331,9 @@ const AdminActivities = () => {
 
   const handleSave = (activity, isEditing) => {
     if (isEditing) {
-      setActivities((prev) => prev.map((a) => a._id === activity._id ? activity : a));
+      setActivities((prev) =>
+        prev.map((a) => (a._id === activity._id ? activity : a)),
+      );
     } else {
       setActivities((prev) => [...prev, activity]);
     }
@@ -261,11 +363,11 @@ const AdminActivities = () => {
   };
 
   const getFarmName = (id) => farms.find((f) => f._id === id)?.name || "—";
-  const getEmpName  = (id) => employees.find((e) => e._id === id)?.name || "—";
+  const getEmpName = (id) => employees.find((e) => e._id === id)?.name || "—";
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
+      <div className="flex flex-row items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
         <h1 className="text-xl sm:text-3xl font-sans font-bold tracking-tight text-gray-700">
           <T text="Daily Activity Logs" />
         </h1>
@@ -275,7 +377,9 @@ const AdminActivities = () => {
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+            {userInitials}
+          </div>
         </div>
       </div>
 

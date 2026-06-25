@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import {
-  Search, Settings, Plus, MapPin, X, Check, Pencil, Trash2,
+  Search,
+  Settings,
+  Plus,
+  MapPin,
+  X,
+  Check,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+const getToken = () =>
+  localStorage.getItem("token") || localStorage.getItem("fb_token");
 
 function T({ text }) {
   const translated = useTranslatedText(text);
@@ -27,23 +35,36 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
   const [form, setForm] = useState({
     name: existingCrop?.name || "",
     farmId: existingCrop?.farmId || farms[0]?._id || "",
-    plantDate: existingCrop?.plantDate ? existingCrop.plantDate.slice(0, 10) : "",
-    harvestDate: existingCrop?.harvestDate ? existingCrop.harvestDate.slice(0, 10) : "",
+    plantDate: existingCrop?.plantDate
+      ? existingCrop.plantDate.slice(0, 10)
+      : "",
+    harvestDate: existingCrop?.harvestDate
+      ? existingCrop.harvestDate.slice(0, 10)
+      : "",
     expectedYield: existingCrop?.expectedYield || "",
     status: existingCrop?.status || "Growing",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
-    if (!form.name) { setError("Crop name is required."); return; }
-    if (!form.farmId) { setError("Please select a farm."); return; }
+    if (!form.name) {
+      setError("Crop name is required.");
+      return;
+    }
+    if (!form.farmId) {
+      setError("Please select a farm.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
-      const url = isEditing ? `${API_URL}/api/crops/${existingCrop._id}` : `${API_URL}/api/crops`;
+      const url = isEditing
+        ? `${API_URL}/api/crops/${existingCrop._id}`
+        : `${API_URL}/api/crops`;
       const method = isEditing ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
@@ -51,7 +72,10 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
-        body: JSON.stringify({ ...form, expectedYield: Number(form.expectedYield) }),
+        body: JSON.stringify({
+          ...form,
+          expectedYield: Number(form.expectedYield),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save crop");
@@ -71,7 +95,10 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
           <h2 className="text-xl font-semibold text-gray-800">
             <T text={isEditing ? "Edit Crop" : "Add New Crop"} />
           </h2>
-          <button onClick={onClose} className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50"
+          >
             <X size={18} />
           </button>
         </div>
@@ -81,21 +108,33 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Crop Name" />
             </label>
-            <input name="name" value={form.name} onChange={handleChange} type="text" placeholder="e.g. Maize"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              type="text"
+              placeholder="e.g. Maize"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Farm" />
             </label>
-            <select name="farmId" value={form.farmId} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="farmId"
+              value={form.farmId}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               {farms.length === 0 ? (
                 <option value="">No farms available</option>
               ) : (
                 farms.map((f) => (
-                  <option key={f._id} value={f._id}>{f.name}</option>
+                  <option key={f._id} value={f._id}>
+                    {f.name}
+                  </option>
                 ))
               )}
             </select>
@@ -105,32 +144,52 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Plant Date" />
             </label>
-            <input name="plantDate" value={form.plantDate} onChange={handleChange} type="date"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="plantDate"
+              value={form.plantDate}
+              onChange={handleChange}
+              type="date"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Harvest Date" />
             </label>
-            <input name="harvestDate" value={form.harvestDate} onChange={handleChange} type="date"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="harvestDate"
+              value={form.harvestDate}
+              onChange={handleChange}
+              type="date"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Expected Yield" />
             </label>
-            <input name="expectedYield" value={form.expectedYield} onChange={handleChange} type="number" placeholder="500"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200" />
+            <input
+              name="expectedYield"
+              value={form.expectedYield}
+              onChange={handleChange}
+              type="number"
+              placeholder="500"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            />
           </div>
 
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Status" />
             </label>
-            <select name="status" value={form.status} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm font-sans text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
               <option>Growing</option>
               <option>Harvested</option>
               <option>Failed</option>
@@ -138,17 +197,30 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
           </div>
         </div>
 
-        {error && <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>}
+        {error && (
+          <p className="px-6 pb-2 text-sm text-red-500 font-sans">{error}</p>
+        )}
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose}
-            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="text-sm font-sans font-medium px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
             <T text="Cancel" />
           </button>
-          <button onClick={handleSave} disabled={loading}
-            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50"
+          >
             <Check size={16} />
-            {loading ? <T text="Saving..." /> : isEditing ? <T text="Update" /> : <T text="Save" />}
+            {loading ? (
+              <T text="Saving..." />
+            ) : isEditing ? (
+              <T text="Update" />
+            ) : (
+              <T text="Save" />
+            )}
           </button>
         </div>
       </div>
@@ -157,17 +229,17 @@ function CropModal({ onClose, onSave, farms, existingCrop }) {
 }
 
 const statusColor = (status) => {
-  if (status === "Growing")   return "bg-green-100 text-green-700";
+  if (status === "Growing") return "bg-green-100 text-green-700";
   if (status === "Harvested") return "bg-blue-100 text-blue-700";
-  if (status === "Failed")    return "bg-red-100 text-red-700";
+  if (status === "Failed") return "bg-red-100 text-red-700";
   return "bg-gray-100 text-gray-600";
 };
 
 const AdminCrops = () => {
-  const [showModal, setShowModal]       = useState(false);
-  const [editingCrop, setEditingCrop]   = useState(null);
-  const [crops, setCrops]               = useState([]);
-  const [farms, setFarms]               = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [editingCrop, setEditingCrop] = useState(null);
+  const [crops, setCrops] = useState([]);
+  const [farms, setFarms] = useState([]);
   const [loadingCrops, setLoadingCrops] = useState(true);
   const userInitials = getUserInitials(); // 👈 added
 
@@ -175,8 +247,12 @@ const AdminCrops = () => {
     const fetchData = async () => {
       try {
         const [cropsRes, farmsRes] = await Promise.all([
-          fetch(`${API_URL}/api/crops`, { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/farms`, { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/crops`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/farms`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
         ]);
         const cropsData = await cropsRes.json();
         const farmsData = await farmsRes.json();
@@ -193,7 +269,7 @@ const AdminCrops = () => {
 
   const handleSave = (crop, isEditing) => {
     if (isEditing) {
-      setCrops((prev) => prev.map((c) => c._id === crop._id ? crop : c));
+      setCrops((prev) => prev.map((c) => (c._id === crop._id ? crop : c)));
     } else {
       setCrops((prev) => [...prev, crop]);
     }
@@ -222,11 +298,12 @@ const AdminCrops = () => {
     setEditingCrop(null);
   };
 
-  const getFarmName = (farmId) => farms.find((f) => f._id === farmId)?.name || "Unknown Farm";
+  const getFarmName = (farmId) =>
+    farms.find((f) => f._id === farmId)?.name || "Unknown Farm";
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
+      <div className="flex flex-row items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
         <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
           <T text="Crop Management" />
         </h1>

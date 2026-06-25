@@ -1,51 +1,96 @@
 import React, { useState, useEffect } from "react";
 import {
-  Settings, Search, BarChart2, Leaf,
-  User, Mountain, Building2, FileText,
+  Settings,
+  BarChart2,
+  Leaf,
+  User,
+  Mountain,
+  Building2,
+  FileText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
 } from "recharts";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token") || localStorage.getItem("fb_token");
+const getToken = () =>
+  localStorage.getItem("token") || localStorage.getItem("fb_token");
 
 function T({ text }) {
   const translated = useTranslatedText(text);
   return <>{translated}</>;
 }
 
-const COLORS = ["#1e3a2f", "#c47a0a", "#3a8a5a", "#7a6a50", "#8a8a8a", "#f5a623"];
+const COLORS = [
+  "#1e3a2f",
+  "#c47a0a",
+  "#3a8a5a",
+  "#7a6a50",
+  "#8a8a8a",
+  "#f5a623",
+];
 
 const AdminReports = () => {
-  const [farms, setFarms]           = useState([]);
-  const [crops, setCrops]           = useState([]);
-  const [employees, setEmployees]   = useState([]);
+  const [farms, setFarms] = useState([]);
+  const [crops, setCrops] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [activities, setActivities] = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [exporting, setExporting]   = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [userInitials, setUserInitials] = useState("");
+
+  useEffect(() => {
+    const name = localStorage.getItem("userName") || "";
+    if (name.trim()) {
+      const parts = name.trim().split(" ");
+      const initials =
+        parts.length >= 2 ? parts[0][0] + parts[1][0] : parts[0][0];
+      setUserInitials(initials.toUpperCase());
+    }
+  }, []);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
         const [farmRes, cropRes, empRes, actRes] = await Promise.all([
-          fetch(`${API_URL}/api/farms`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/crops`,      { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/employees`,  { headers: { Authorization: `Bearer ${getToken()}` } }),
-          fetch(`${API_URL}/api/activities`, { headers: { Authorization: `Bearer ${getToken()}` } }),
+          fetch(`${API_URL}/api/farms`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/crops`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/employees`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${API_URL}/api/activities`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
         ]);
         const [farmData, cropData, empData, actData] = await Promise.all([
-          farmRes.json(), cropRes.json(), empRes.json(), actRes.json(),
+          farmRes.json(),
+          cropRes.json(),
+          empRes.json(),
+          actRes.json(),
         ]);
         if (Array.isArray(farmData)) setFarms(farmData);
         if (Array.isArray(cropData)) setCrops(cropData);
-        if (Array.isArray(empData))  setEmployees(empData);
-        if (Array.isArray(actData))  setActivities(actData);
+        if (Array.isArray(empData)) setEmployees(empData);
+        if (Array.isArray(actData)) setActivities(actData);
       } catch (err) {
         console.error("Reports fetch error:", err);
       } finally {
@@ -56,24 +101,29 @@ const AdminReports = () => {
   }, []);
 
   const getFarmName = (id) => farms.find((f) => f._id === id)?.name || "—";
-  const getEmpName  = (id) => employees.find((e) => e._id === id)?.name || "—";
+  const getEmpName = (id) => employees.find((e) => e._id === id)?.name || "—";
 
-  const totalYield     = crops.filter((c) => c.status === "Harvested").reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
-  const growingCrops   = crops.filter((c) => c.status === "Growing").length;
+  const totalYield = crops
+    .filter((c) => c.status === "Harvested")
+    .reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
+  const growingCrops = crops.filter((c) => c.status === "Growing").length;
   const harvestedCrops = crops.filter((c) => c.status === "Harvested").length;
-  const failedCrops    = crops.filter((c) => c.status === "Failed").length;
-  const activeFarms    = farms.filter((f) => f.status === "Active").length;
-  const activeEmps     = employees.filter((e) => e.status === "Active").length;
+  const failedCrops = crops.filter((c) => c.status === "Failed").length;
+  const activeFarms = farms.filter((f) => f.status === "Active").length;
+  const activeEmps = employees.filter((e) => e.status === "Active").length;
 
   const cropStatusData = [
-    { name: "Growing",   value: growingCrops },
+    { name: "Growing", value: growingCrops },
     { name: "Harvested", value: harvestedCrops },
-    { name: "Failed",    value: failedCrops },
+    { name: "Failed", value: failedCrops },
   ].filter((d) => d.value > 0);
 
   const yieldPerFarm = farms.map((farm) => {
     const farmCrops = crops.filter((c) => c.farmId === farm._id);
-    const yield_ = farmCrops.reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
+    const yield_ = farmCrops.reduce(
+      (sum, c) => sum + (c.actualYield || c.expectedYield || 0),
+      0,
+    );
     return { name: farm.name?.split(" ")[0] || "Farm", yield: yield_ };
   });
 
@@ -81,7 +131,10 @@ const AdminReports = () => {
     acc[act.type] = (acc[act.type] || 0) + 1;
     return acc;
   }, {});
-  const activityData = Object.entries(activityTypes).map(([name, value]) => ({ name, value }));
+  const activityData = Object.entries(activityTypes).map(([name, value]) => ({
+    name,
+    value,
+  }));
 
   const monthlyData = () => {
     const months = {};
@@ -100,14 +153,29 @@ const AdminReports = () => {
   };
 
   const farmPerformance = farms.map((farm) => {
-    const farmCrops      = crops.filter((c) => c.farmId === farm._id);
+    const farmCrops = crops.filter((c) => c.farmId === farm._id);
     const farmActivities = activities.filter((a) => a.farmId === farm._id);
-    const farmEmployees  = employees.filter((e) => e.farmId === farm._id);
-    const farmYield      = farmCrops.reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
-    const successRate    = farmCrops.length > 0
-      ? Math.round((farmCrops.filter((c) => c.status === "Harvested").length / farmCrops.length) * 100)
-      : 0;
-    return { ...farm, cropCount: farmCrops.length, activityCount: farmActivities.length, employeeCount: farmEmployees.length, totalYield: farmYield, successRate };
+    const farmEmployees = employees.filter((e) => e.farmId === farm._id);
+    const farmYield = farmCrops.reduce(
+      (sum, c) => sum + (c.actualYield || c.expectedYield || 0),
+      0,
+    );
+    const successRate =
+      farmCrops.length > 0
+        ? Math.round(
+            (farmCrops.filter((c) => c.status === "Harvested").length /
+              farmCrops.length) *
+              100,
+          )
+        : 0;
+    return {
+      ...farm,
+      cropCount: farmCrops.length,
+      activityCount: farmActivities.length,
+      employeeCount: farmEmployees.length,
+      totalYield: farmYield,
+      successRate,
+    };
   });
 
   const exportPDF = () => {
@@ -116,7 +184,6 @@ const AdminReports = () => {
       const doc = new jsPDF();
       const date = new Date().toLocaleDateString();
 
-      // Header
       doc.setFillColor(30, 58, 47);
       doc.rect(0, 0, 210, 28, "F");
       doc.setTextColor(255, 255, 255);
@@ -127,7 +194,6 @@ const AdminReports = () => {
       doc.setFont("helvetica", "normal");
       doc.text(`Generated: ${date}`, 150, 17);
 
-      // Summary stats
       doc.setTextColor(30, 58, 47);
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
@@ -142,14 +208,22 @@ const AdminReports = () => {
         `Total Yield: ${totalYield} kg`,
         `Activities Logged: ${activities.length}`,
       ];
-      stats.forEach((s, i) => doc.text(s, 14 + (i % 3) * 65, 46 + Math.floor(i / 3) * 7));
+      stats.forEach((s, i) =>
+        doc.text(s, 14 + (i % 3) * 65, 46 + Math.floor(i / 3) * 7),
+      );
 
-      // Farm Performance table
       autoTable(doc, {
         startY: 62,
-        head: [["Farm", "Status", "Crops", "Staff", "Activities", "Success Rate"]],
+        head: [
+          ["Farm", "Status", "Crops", "Staff", "Activities", "Success Rate"],
+        ],
         body: farmPerformance.map((f) => [
-          f.name, f.status, f.cropCount, f.employeeCount, f.activityCount, `${f.successRate}%`,
+          f.name,
+          f.status,
+          f.cropCount,
+          f.employeeCount,
+          f.activityCount,
+          `${f.successRate}%`,
         ]),
         headStyles: { fillColor: [30, 58, 47], fontSize: 8 },
         bodyStyles: { fontSize: 8 },
@@ -157,13 +231,15 @@ const AdminReports = () => {
         margin: { left: 14, right: 14 },
       });
 
-      // Crops table
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
         head: [["Crop", "Farm", "Expected (kg)", "Actual (kg)", "Status"]],
         body: crops.map((c) => [
-          c.name, getFarmName(c.farmId),
-          c.expectedYield || "—", c.actualYield || "—", c.status,
+          c.name,
+          getFarmName(c.farmId),
+          c.expectedYield || "—",
+          c.actualYield || "—",
+          c.status,
         ]),
         headStyles: { fillColor: [196, 122, 10], fontSize: 8 },
         bodyStyles: { fontSize: 8 },
@@ -171,12 +247,15 @@ const AdminReports = () => {
         margin: { left: 14, right: 14 },
       });
 
-      // Employees table
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
         head: [["Name", "Role", "Farm", "Phone", "Status"]],
         body: employees.map((e) => [
-          e.name, e.role || "—", getFarmName(e.farmId), e.phone || "—", e.status,
+          e.name,
+          e.role || "—",
+          getFarmName(e.farmId),
+          e.phone || "—",
+          e.status,
         ]),
         headStyles: { fillColor: [30, 58, 47], fontSize: 8 },
         bodyStyles: { fontSize: 8 },
@@ -184,14 +263,16 @@ const AdminReports = () => {
         margin: { left: 14, right: 14 },
       });
 
-      // Activities table
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
         head: [["Date", "Farm", "Type", "Employee", "Description"]],
         body: activities.map((a) => [
           a.date ? new Date(a.date).toLocaleDateString() : "—",
-          getFarmName(a.farmId), a.type, getEmpName(a.employeeId),
-          a.description?.slice(0, 40) + (a.description?.length > 40 ? "..." : ""),
+          getFarmName(a.farmId),
+          a.type,
+          getEmpName(a.employeeId),
+          a.description?.slice(0, 40) +
+            (a.description?.length > 40 ? "..." : ""),
         ]),
         headStyles: { fillColor: [196, 122, 10], fontSize: 8 },
         bodyStyles: { fontSize: 8 },
@@ -199,7 +280,6 @@ const AdminReports = () => {
         margin: { left: 14, right: 14 },
       });
 
-      // Footer on every page
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -219,14 +299,16 @@ const AdminReports = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f7f4ee] flex items-center justify-center">
-        <p className="text-gray-400 font-sans text-sm"><T text="Loading reports..." /></p>
+        <p className="text-gray-400 font-sans text-sm">
+          <T text="Loading reports..." />
+        </p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
+      <div className="flex flex-row items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
         <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
           <T text="Reports & Analytics" />
         </h1>
@@ -236,7 +318,9 @@ const AdminReports = () => {
               <Settings size={18} />
             </button>
           </Link>
-          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0"></div>
+          <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
+            {userInitials}
+          </div>
         </div>
       </div>
 
