@@ -30,7 +30,7 @@ const CTA = () => {
           shadow-[0_4px_20px_rgba(26,18,8,.25)] hover:-translate-y-0.5
           hover:shadow-[0_8px_28px_rgba(26,18,8,.3)] transition-all duration-150"
         >
-          Open Gona <ArrowRight className="inline-block ml-2" />
+          Open Gona for Free <ArrowRight className="inline-block ml-2" />
         </Link>
       </section>
     </div>

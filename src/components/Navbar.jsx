@@ -44,13 +44,6 @@ const Navbar = () => {
             </a>
           ))}
 
-          {/* <Link
-            to="/login"
-            className="text-black border border-gray-300 px-4 py-2 rounded-4xl text-sm font-medium hover:-translate-y-0.5
-          hover:shadow-[0_8px_28px_rgba(26,18,8,.3)] transition-all duration-150"
-          >
-            Login
-          </Link> */}
           <Link
             to="/login"
             className="bg-black text-white px-4 py-2 rounded-4xl text-sm font-medium shadow-[0_4px_20px_rgba(26,18,8,.25)] hover:-translate-y-0.5
@@ -81,31 +74,44 @@ const Navbar = () => {
           />
         </button>
 
+        {/* Mobile overlay backdrop */}
+        {menuOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setMenuOpen(false)}
+          />
+        )}
+
         {/* Mobile drawer */}
         {menuOpen && (
           <div
-            className="bg-cream/70 absolute top-full left-0 right-0 backdrop-blur-2xl border-b border-soil/8
-          flex flex-col px-6 py-4 gap-4 animate-slideDown md:hidden"
+            style={{
+              backgroundColor: "#FBF6ECE6",
+              backdropFilter: "blur(50px)",
+              WebkitBackdropFilter: "blur(50px)",
+            }}
+            className="absolute text-black backdrop-blur-xl shadow-[0_4px_20px_rgba(26,18,8,.25)]  top-[calc(100%)] left-3 right-3 flex flex-col gap-1 rounded-2xl shadow-xl py-3 animate-slideDown md:hidden z-30 overflow-hidden"
           >
             {["Features", "Pricing", "Reviews"].map((link) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
                 onClick={close}
-                className="text-base text-soil/75 hover:text-soil no-underline transition-opacity"
+                className="text-base font-medium text-soil/75 hover:text-soil hover:bg-soil/5 no-underline transition-colors px-5 py-3"
               >
                 {link}
               </a>
             ))}
-            <Link
-              to="/login"
-              onClick={close}
-              className="bg-black text-white px-4 py-2 rounded-4xl text-sm font-medium shadow-[0_4px_20px_rgba(26,18,8,.25)] hover:-translate-y-0.5
+            <div className="px-5 pt-2">
+              <Link
+                to="/login"
+                onClick={close}
+                className="block bg-black text-white px-4 py-3 rounded-4xl text-sm font-medium shadow-[0_4px_20px_rgba(26,18,8,.25)] hover:-translate-y-0.5
           hover:shadow-[0_8px_28px_rgba(26,18,8,.3)] transition-all duration-150 text-center no-underline"
-            >
-              Login
-            </Link>
-            
+              >
+                Login for Free
+              </Link>
+            </div>  
           </div>
         )}
       </nav>

@@ -9,6 +9,7 @@ import InstallPWA from "../components/InstallPWA";
 import CTA from "../components/CTA";
 import Footer from "../components/Footer";
 import Pricing from "../components/Pricing";
+import AnimatedSection from "../components/AnimatedSection";
 
 const LandingPage = () => {
   return (
