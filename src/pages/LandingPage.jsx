@@ -8,6 +8,7 @@ import Testimonials from "../components/Testimonials";
 import InstallPWA from "../components/InstallPWA";
 import CTA from "../components/CTA";
 import Footer from "../components/Footer";
+import Pricing from "../components/Pricing";
 
 const LandingPage = () => {
   return (
@@ -19,6 +20,7 @@ const LandingPage = () => {
       <StatsStrip />
       <HowItWorks />
       <Testimonials />
+      <Pricing />
       <InstallPWA />
       <CTA />
       <Footer />
