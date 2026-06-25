@@ -18,9 +18,9 @@ const plans = [
   {
     id: "monthly",
     name: "Standard",
-    price: "₦5,000",
+    price: "₦2,500",
     cadence: "/month",
-    amountKobo: 5000 * 100,
+    amountKobo: 2500 * 100,
     blurb: "For businesses ready to grow bookings.",
     features: ["More bookings", "Reports", "Notifications"],
     cta: "Pay monthly",
@@ -30,15 +30,15 @@ const plans = [
   {
     id: "yearly",
     name: "Standard",
-    price: "₦50,000",
+    price: "₦27,500",
     cadence: "/year",
-    amountKobo: 50000 * 100,
+    amountKobo: 27500 * 100,
     blurb: "Same Standard features, 2 months free.",
     features: [
       "More bookings",
       "Reports",
       "Notifications",
-      "Save ₦10,000 vs monthly",
+      "Get 1 months free when you pay yearly",
     ],
     cta: "Pay yearly",
     highlight: false,
@@ -124,9 +124,7 @@ export default function PricingSection() {
     <>
       {/* Email Modal */}
       {modal.open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
             <button
               onClick={closeModal}
@@ -186,17 +184,17 @@ export default function PricingSection() {
               key={plan.id}
               className={`relative rounded-2xl border p-8 flex flex-col ${
                 plan.highlight
-                  ? "border-amber-500 bg-white shadow-xl"
-                  : "border-slate-200 bg-white shadow-sm"
+                  ? "border-[#d4840a] bg-white shadow-xl"
+                  : "border-green-700 bg-white shadow-sm"
               }`}
             >
               {plan.highlight && (
-                <span className="absolute -top-3 left-8 bg-amber-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="absolute -top-3 left-8 bg-[#d4840a] text-white text-xs font-semibold px-3 py-1 rounded-full">
                   Most popular
                 </span>
               )}
               {plan.badge && (
-                <span className="absolute -top-3 left-8 bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="absolute -top-3 left-8 bg-green-900 text-white text-xs font-semibold px-3 py-1 rounded-full">
                   {plan.badge}
                 </span>
               )}
@@ -234,10 +232,10 @@ export default function PricingSection() {
                 disabled={plan.payable && loadingPlan === plan.id}
                 className={`mt-8 w-full rounded-lg py-3 font-medium transition-colors ${
                   plan.highlight
-                    ? "bg-amber-500 text-white hover:bg-amber-600"
+                    ? "bg-[#d4840a] text-white hover:bg-[#c27a09]"
                     : plan.payable
-                      ? "bg-slate-900 text-white hover:bg-slate-800"
-                      : "bg-slate-100 text-slate-900 hover:bg-slate-200"
+                      ? "bg-green-900 text-white hover:bg-green-800"
+                      : "bg-slate-200 text-green-900 hover:bg-slate-300"
                 } disabled:opacity-60`}
               >
                 {plan.payable && loadingPlan === plan.id
