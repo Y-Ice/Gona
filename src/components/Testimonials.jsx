@@ -11,16 +11,16 @@ const testimonials = [
   {
     bg: "bg-green-900",
     quote:
-      '"The irrigation planner alone saved us so much water this dry season. The weather alerts are incredibly accurate for our area."',
+      '"I love that I can view the app in my native language. It makes navigation simple for me and my workers who are not comfortable with English."',
     author: "Amara Diallo",
     farm: "Plateau State, Nigeria — Mixed crop farm",
   },
   {
     bg: "bg-green-900",
     quote:
-      '"I finally understand where my money is going on the farm. The financial ledger is simple but so powerful. I recommend it to every farmer I know."',
+      '"Generating reports is very easy. I can quickly see crop performance, employee productivity, and farm activities without going through paper records."',
     author: "Fatima Bello",
-    farm: "Plateau State, Nigeria — Livestock & crops",
+    farm: "Plateau State, Nigeria — Crops Farmer",
   },
 ];
 

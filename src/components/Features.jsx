@@ -3,13 +3,13 @@ import { Flower2, Sun, BarChart3, Droplets, Package } from "lucide-react";
 const features = [
   {
     img: "/images/pic1.jpeg",
-    title: "Speaker the Language of Your Farm",
-    desc: "Access your farm data in local languages, including Hausa, Yoruba, Igbo, and more, for seamless management across Africa.",
+    title: "View in local languages",
+    desc: "Access your farm data in local languages (Hausa, Yoruba, Igbo).",
   },
   {
     img: "/images/pic2.jpeg",
     title: "Employee Management",
-    desc: "Manage farm workers, assign tasks, monitor attendance, and track productivity with ease.",
+    desc: "Manage farm workers, assign tasks,and track productivity with ease.",
   },
   {
     img: "/images/pic3.jpeg",
@@ -24,7 +24,7 @@ const Features = () => {
       <section id="features" className="px-6 md:px-16 py-20 bg-cream">
         <div className="text-center">
           <div className="text-[0.85rem] text-amber-400 font-bold tracking-[0.15em] uppercase text-harvest mb-3">
-            Why Gona
+            Why Use Gona
           </div>
           <h2
             className="font-playfair text-[clamp(2rem,3.5vw,2.8rem)] font-bold leading-[1.2]
