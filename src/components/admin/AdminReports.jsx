@@ -586,10 +586,10 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-6 py-5 bg-[#f0ece0]">
             <h3 className="text-base font-semibold text-gray-800"><T text="Crop Yield Details" /></h3>
-            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Expected vs actual yield for all crops" /></p>
+            <p className="text-xs text-gray-400 font-sans mt-0.5"><T text="Expected  for all crops" /></p>
           </div>
           <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr] gap-4 px-6 py-3 border-b border-gray-100">
-            {["Crop","Farm","Expected (kg)","Actual (kg)","Status"].map((h) => (
+            {["Crop","Farm","Expected (kg)",,"Status"].map((h) => (
               <span key={h} className="text-xs font-sans font-semibold text-gray-400 tracking-wider uppercase"><T text={h} /></span>
             ))}
           </div>
