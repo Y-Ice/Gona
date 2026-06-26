@@ -11,7 +11,7 @@ const steps = [
     num: "02",
     icon: "📍",
     title: "Connect your data",
-    desc: "Log daily activities, link weather data to your location, and sync your financial records in one place.",
+    desc: "Log daily activities and sync your farm records in one place.",
   },
   {
     num: "03",

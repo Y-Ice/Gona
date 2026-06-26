@@ -9,8 +9,8 @@ const plans = [
     name: "Free",
     price: "₦0",
     cadence: "/month",
-    blurb: "For getting your first bookings online.",
-    features: ["Basic booking management"],
+    blurb: "For managing your farm online.",
+    features: ["Basic farm management", "Reports dashboard (view only)"],
     cta: "Start free",
     highlight: false,
     payable: false,
@@ -22,7 +22,11 @@ const plans = [
     cadence: "/month",
     amountKobo: 2500 * 100,
     blurb: "For businesses ready to grow bookings.",
-    features: ["More bookings", "Reports", "Notifications"],
+    features: [
+      "Reports dashboard + PDF download",
+      "AI insights",
+      "Local language translation/transcription",
+    ],
     cta: "Pay monthly",
     highlight: true,
     payable: true,
@@ -33,12 +37,11 @@ const plans = [
     price: "₦27,500",
     cadence: "/year",
     amountKobo: 27500 * 100,
-    blurb: "Same Standard features, 2 months free.",
+    blurb: "Same Standard features, 1 month free.",
     features: [
-      "More bookings",
-      "Reports",
-      "Notifications",
-      "Get 1 months free when you pay yearly",
+      "Reports dashboard + PDF download",
+      "AI insights",
+      "Local language translation/transcription",
     ],
     cta: "Pay yearly",
     highlight: false,
@@ -46,7 +49,6 @@ const plans = [
     badge: "Best value",
   },
 ];
-
 export default function PricingSection() {
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(null);

@@ -3,7 +3,7 @@ const InstallPWA = () => {
     <section className="bg-[#f7f4ee] py-16 px-4">
       <div className="max-w-4xl mx-auto text-center">
         <p className="text-xs font-semibold text-[#c47a0a] tracking-widest uppercase mb-2">
-          Mobile App
+          PWA Installation
         </p>
         <h2 className="text-3xl font-bold text-[#1e1a14] mb-3">
           Use Gona on your phone
