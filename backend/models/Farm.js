@@ -11,7 +11,8 @@ const FarmSchema = new mongoose.Schema({
   size:           Number,
   unit:           { type: String, default: 'hectares' },
   specialization: String,
-  status:         { type: String, enum: ['Active', 'Inactive', 'Dormant'], default: 'Active' }
+  status:         { type: String, enum: ['Active', 'Inactive', 'Dormant'], default: 'Active' },
+  imageUrl:       { type: String, default: '' },   // 👈 added
 }, { timestamps: true });
 
 module.exports = mongoose.model('Farm', FarmSchema);
