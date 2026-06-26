@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
-  Search,
   Settings,
   Plus,
   Pencil,
@@ -8,11 +7,15 @@ import {
   MapPin,
   X,
   Check,
+  ImagePlus,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
 const getToken = () =>
   localStorage.getItem("token") || localStorage.getItem("fb_token");
 
@@ -32,6 +35,8 @@ function getUserInitials() {
 
 function FarmModal({ onClose, onSave, existingFarm }) {
   const isEditing = !!existingFarm;
+  const fileInputRef = useRef(null);
+
   const [form, setForm] = useState({
     name: existingFarm?.name || "",
     location: existingFarm?.location || "",
@@ -40,7 +45,12 @@ function FarmModal({ onClose, onSave, existingFarm }) {
     specialization: existingFarm?.specialization || "",
     status: existingFarm?.status || "Active",
     coordinates: existingFarm?.coordinates || null,
+    imageUrl: existingFarm?.imageUrl || "",
   });
+
+  const [imagePreview, setImagePreview] = useState(existingFarm?.imageUrl || null);
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [locating, setLocating] = useState(false);
@@ -48,6 +58,35 @@ function FarmModal({ onClose, onSave, existingFarm }) {
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setForm((prev) => ({ ...prev, imageUrl: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    data.append("folder", "gona/farms");
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: data }
+    );
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error?.message || "Image upload failed");
+    return json.secure_url;
+  };
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
@@ -61,7 +100,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
         const { latitude, longitude } = pos.coords;
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
           );
           const data = await res.json();
           const address = data.display_name || `${latitude}, ${longitude}`;
@@ -84,7 +123,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
       () => {
         setError("Couldn't get location. Please enter it manually.");
         setLocating(false);
-      },
+      }
     );
   };
 
@@ -95,7 +134,17 @@ function FarmModal({ onClose, onSave, existingFarm }) {
     }
     setLoading(true);
     setError("");
+
     try {
+      let imageUrl = form.imageUrl;
+
+      // Upload new image to Cloudinary if one was selected
+      if (imageFile) {
+        setUploadingImage(true);
+        imageUrl = await uploadToCloudinary(imageFile);
+        setUploadingImage(false);
+      }
+
       const url = isEditing
         ? `${API_URL}/api/farms/${existingFarm._id}`
         : `${API_URL}/api/farms`;
@@ -107,14 +156,16 @@ function FarmModal({ onClose, onSave, existingFarm }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
         },
-        body: JSON.stringify({ ...form, size: Number(form.size) }),
+        body: JSON.stringify({ ...form, size: Number(form.size), imageUrl }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save farm");
       onSave(data, isEditing);
       onClose();
     } catch (err) {
       setError(err.message);
+      setUploadingImage(false);
     } finally {
       setLoading(false);
     }
@@ -122,7 +173,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl font-serif overflow-hidden max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <h2 className="text-xl font-semibold text-gray-800">
             <T text={isEditing ? "Edit Farm" : "Add New Farm"} />
@@ -136,6 +187,57 @@ function FarmModal({ onClose, onSave, existingFarm }) {
         </div>
 
         <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+
+          {/* Image Upload — full width */}
+          <div className="sm:col-span-2">
+            <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
+              <T text="Farm Photo" />{" "}
+              <span className="text-gray-400 normal-case font-normal tracking-normal">
+                (optional)
+              </span>
+            </label>
+
+            {imagePreview ? (
+              <div className="relative w-full h-44 rounded-xl overflow-hidden border border-gray-200">
+                <img
+                  src={imagePreview}
+                  alt="Farm preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100 flex flex-col items-center justify-center gap-2 text-gray-400 transition-colors"
+              >
+                <ImagePlus size={28} />
+                <span className="text-sm font-sans">
+                  <T text="Click to upload a farm photo" />
+                </span>
+                <span className="text-xs font-sans text-gray-300">
+                  JPG, PNG, WEBP
+                </span>
+              </button>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
+
+          {/* Farm Name */}
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Farm Name" />
@@ -150,6 +252,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             />
           </div>
 
+          {/* Location */}
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Location" />
@@ -181,11 +284,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
               value={form.location}
               onChange={(e) => {
                 setLocSuccess(false);
-                setForm({
-                  ...form,
-                  location: e.target.value,
-                  coordinates: null,
-                });
+                setForm({ ...form, location: e.target.value, coordinates: null });
               }}
               type="text"
               placeholder="e.g. Ogun State, Nigeria"
@@ -193,6 +292,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             />
           </div>
 
+          {/* Size */}
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Size" />
@@ -207,6 +307,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             />
           </div>
 
+          {/* Unit */}
           <div>
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Unit" />
@@ -222,6 +323,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             </select>
           </div>
 
+          {/* Specialization */}
           <div className="sm:col-span-2">
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Specialization" />
@@ -236,6 +338,7 @@ function FarmModal({ onClose, onSave, existingFarm }) {
             />
           </div>
 
+          {/* Status */}
           <div className="sm:col-span-2">
             <label className="text-xs font-sans font-semibold text-[#c47a0a] tracking-wider uppercase mb-2 block">
               <T text="Status" />
@@ -266,11 +369,13 @@ function FarmModal({ onClose, onSave, existingFarm }) {
           </button>
           <button
             onClick={handleSave}
-            disabled={loading}
+            disabled={loading || uploadingImage}
             className="flex items-center gap-2 text-sm font-sans font-medium px-5 py-2.5 rounded-lg bg-[#1e1a14] text-white hover:bg-[#2a241c] disabled:opacity-50"
           >
             <Check size={16} />
-            {loading ? (
+            {uploadingImage ? (
+              <T text="Uploading image..." />
+            ) : loading ? (
               <T text="Saving..." />
             ) : isEditing ? (
               <T text="Update" />
@@ -351,7 +456,6 @@ const AdminFarm = () => {
               <Settings size={18} />
             </button>
           </Link>
-          {/*  updated avatar with initials */}
           <div className="w-10 h-10 rounded-lg bg-[#1e3a2f] flex items-center justify-center text-white text-sm font-semibold font-sans flex-shrink-0">
             {userInitials}
           </div>
@@ -363,7 +467,7 @@ const AdminFarm = () => {
       <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 ">
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
               <T text="Farm Management" />
             </h1>
           </div>
@@ -391,22 +495,27 @@ const AdminFarm = () => {
                 key={farm._id}
                 className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
               >
+                {/* Farm image — shows only if imageUrl exists */}
+                {farm.imageUrl && (
+                  <div className="w-full h-40 overflow-hidden">
+                    <img
+                      src={farm.imageUrl}
+                      alt={farm.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
                 <div className="p-5">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">
                       {farm.name}
                     </h3>
                     <div className="flex items-center gap-3 text-gray-400 flex-shrink-0">
-                      <button
-                        onClick={() => handleEdit(farm)}
-                        className="hover:text-gray-600"
-                      >
+                      <button onClick={() => handleEdit(farm)} className="hover:text-gray-600">
                         <Pencil size={16} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(farm._id)}
-                        className="hover:text-red-500"
-                      >
+                      <button onClick={() => handleDelete(farm._id)} className="hover:text-red-500">
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -429,16 +538,16 @@ const AdminFarm = () => {
                         <T text="Specialization" />
                       </p>
                       <p className="text-sm font-semibold text-gray-800">
-                        {farm.specialization ? (
-                          <T text={farm.specialization} />
-                        ) : (
-                          "—"
-                        )}
+                        {farm.specialization ? <T text={farm.specialization} /> : "—"}
                       </p>
                     </div>
                   </div>
                   <span
-                    className={`text-xs font-sans font-medium px-3 py-1 rounded-full ${farm.status === "Active" ? "bg-[#1e3a2f] text-white" : "bg-gray-500 text-white"}`}
+                    className={`text-xs font-sans font-medium px-3 py-1 rounded-full ${
+                      farm.status === "Active"
+                        ? "bg-[#1e3a2f] text-white"
+                        : "bg-gray-500 text-white"
+                    }`}
                   >
                     <T text={farm.status} />
                   </span>

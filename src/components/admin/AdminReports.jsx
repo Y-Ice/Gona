@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line,
 } from "recharts";
 import { useTranslatedText } from "../../hooks/useTranslatedText";
@@ -105,34 +105,6 @@ const AdminReports = () => {
     { name: "Failed",    value: failedCrops },
   ].filter((d) => d.value > 0);
 
-  const yieldPerFarm = farms.map((farm) => {
-    const farmCrops = crops.filter((c) => c.farmId === farm._id);
-    const yield_ = farmCrops.reduce((sum, c) => sum + (c.actualYield || c.expectedYield || 0), 0);
-    return { name: farm.name?.split(" ")[0] || "Farm", yield: yield_ };
-  });
-
-  const activityTypes = activities.reduce((acc, act) => {
-    acc[act.type] = (acc[act.type] || 0) + 1;
-    return acc;
-  }, {});
-  const activityData = Object.entries(activityTypes).map(([name, value]) => ({ name, value }));
-
-  const monthlyData = () => {
-    const months = {};
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = d.toLocaleString("default", { month: "short" });
-      months[key] = 0;
-    }
-    activities.forEach((act) => {
-      const d = new Date(act.date);
-      const key = d.toLocaleString("default", { month: "short" });
-      if (months[key] !== undefined) months[key]++;
-    });
-    return Object.entries(months).map(([month, count]) => ({ month, count }));
-  };
-
   const farmPerformance = farms.map((farm) => {
     const farmCrops      = crops.filter((c) => c.farmId === farm._id);
     const farmActivities = activities.filter((a) => a.farmId === farm._id);
@@ -163,7 +135,6 @@ EMPLOYEE DATA:
 
 ACTIVITY DATA:
 - Total Activities Logged: ${activities.length}
-- Activity Types: ${Object.entries(activityTypes).map(([k, v]) => `${k}: ${v}`).join(", ")}
 - Recent Activities: ${activities.slice(0, 5).map(a => `${a.type} at ${getFarmName(a.farmId)} by ${getEmpName(a.employeeId)}`).join("; ")}
 
 Generate a report with these sections:
@@ -198,18 +169,14 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
     }
   };
 
-  // ── TEXT TO SPEECH ───────────────────────────────────────────────────────
   const handleReadReport = async () => {
     if (!aiReport) return;
-
-    // If already playing, stop it
     if (ttsPlaying && audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
       setTtsPlaying(false);
       return;
     }
-
     setTtsLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/tts`, {
@@ -220,9 +187,7 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
         },
         body: JSON.stringify({ text: aiReport.slice(0, 2000), voice }),
       });
-
       if (!response.ok) throw new Error("TTS failed");
-
       const blob = await response.blob();
       const url  = URL.createObjectURL(blob);
       const audio = new Audio(url);
@@ -377,10 +342,10 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
 
   return (
     <div className="min-h-screen bg-[#f7f4ee] font-serif">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-3xl text-gray-700 font-sans font-bold tracking-tight">
+      <div className="flex flex-row items-center justify-between gap-3 p-4 sm:p-6 pb-0">
+        <h2 className="text-xl sm:text-3xl font-bold text-gray-700 font-sans tracking-tight truncate">
           <T text="Reports & Analytics" />
-        </h1>
+        </h2>
         <div className="flex items-center gap-3">
           <Link to="/admin/settings">
             <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 flex-shrink-0">
@@ -509,7 +474,7 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
             { label: "Active Farms",     value: activeFarms,  icon: <Mountain size={20} className="text-[#7a6a50]" />, bg: "bg-[#f0e8da]" },
             { label: "Total Crops",      value: crops.length, icon: <Leaf size={20} className="text-[#3a8a5a]" />,     bg: "bg-[#d8f0e0]" },
             { label: "Active Staff",     value: activeEmps,   icon: <User size={20} className="text-[#8a8a8a]" />,     bg: "bg-[#e8e8e8]" },
-            { label: "Total Yield (kg)", value: totalYield,   icon: <BarChart2 size={20} className="text-[#c47a0a]" />,bg: "bg-[#fdefd0]" },
+            { label: "Total Yield (kg)", value: totalYield,   icon: <BarChart2 size={20} className="text-[#c47a0a]" />, bg: "bg-[#fdefd0]" },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.bg}`}>{s.icon}</div>
@@ -519,7 +484,7 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
           ))}
         </div>
 
-        {/* Charts Row 1 */}
+        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Activity Trend" /></h3>
@@ -528,7 +493,21 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
               <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No activity data yet" /></div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={monthlyData()}>
+                <LineChart data={(() => {
+                  const months = {};
+                  const now = new Date();
+                  for (let i = 5; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const key = d.toLocaleString("default", { month: "short" });
+                    months[key] = 0;
+                  }
+                  activities.forEach((act) => {
+                    const d = new Date(act.date);
+                    const key = d.toLocaleString("default", { month: "short" });
+                    if (months[key] !== undefined) months[key]++;
+                  });
+                  return Object.entries(months).map(([month, count]) => ({ month, count }));
+                })()}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0ece0" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
                   <YAxis tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
@@ -553,45 +532,6 @@ Keep each section concise but insightful. Use specific numbers from the data.`;
                   </Pie>
                   <Tooltip />
                 </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </div>
-
-        {/* Charts Row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Yield Per Farm" /></h3>
-            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Total yield (kg) across all farms" /></p>
-            {yieldPerFarm.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No farm data yet" /></div>
-            ) : (
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={yieldPerFarm}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0ece0" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
-                  <YAxis tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
-                  <Tooltip />
-                  <Bar dataKey="yield" fill="#1e3a2f" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-base font-semibold text-gray-800 mb-1"><T text="Activity Breakdown" /></h3>
-            <p className="text-xs text-gray-400 font-sans mb-5"><T text="Types of activities logged across all farms" /></p>
-            {activityData.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-gray-400 text-sm font-sans"><T text="No activity data yet" /></div>
-            ) : (
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={activityData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0ece0" />
-                  <XAxis type="number" tick={{ fontSize: 12, fontFamily: "sans-serif" }} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fontFamily: "sans-serif" }} width={90} />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#c47a0a" radius={[0, 6, 6, 0]} />
-                </BarChart>
               </ResponsiveContainer>
             )}
           </div>
